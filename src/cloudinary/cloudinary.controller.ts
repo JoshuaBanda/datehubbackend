@@ -6,6 +6,7 @@ import {
   UseInterceptors,
   HttpStatus,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service'; // Assume you have created a DTO for update profile picture
