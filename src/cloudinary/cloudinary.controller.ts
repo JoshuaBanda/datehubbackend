@@ -28,11 +28,6 @@ export class CloudinaryController {
       throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
     }
 
-    // Validate file type (for example, accept only images)
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw new HttpException('Invalid file type. Only image files are allowed.', HttpStatus.BAD_REQUEST);
-    }
 
     try {
       // Upload file to Cloudinary
