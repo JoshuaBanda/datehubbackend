@@ -116,11 +116,12 @@ export class InboxparticipantsService {
         throw new NotFoundException(`No friends found for user with id: ${id}`);
       }
   
-      // Filter out any null or undefined friends (in case of invalid data)
-      const friends = result.filter(friend => friend.friendId !== null);
+      // Map the result to extract the correct field (friendId)
+      const friends = result.map(item => item.friendId);
   
-      // Return friends in a proper format, if needed
-      return friends.map(friend => friend.friendId); // Return the friend IDs only
+      // Filter out any null or undefined friend IDs
+      return friends.filter(friendId => friendId !== null);
+  
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve friends');
     }
