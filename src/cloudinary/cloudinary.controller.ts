@@ -44,7 +44,6 @@ export class CloudinaryController {
       const { email, profilepicture } = updatepictureDto;
 
       console.log('Updating profile for email:', email);
-      console.log('New profile picture URL:', url);
 
       // Update the profile picture in the database (assuming UsersService handles user updates)
       const updateResult = await this.usersService.updateProfilePicture(email, url);
