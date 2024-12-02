@@ -99,7 +99,12 @@ export class InboxparticipantsService {
   async getFriends(id: number) {
     try {
       const result = await db
-        .select({ secondinboxid: inboxParticipantsTable.seconduserid })
+        .select({
+          friendId: sql`CASE 
+                          WHEN ${inboxParticipantsTable.firstuserid} = ${id} THEN ${inboxParticipantsTable.seconduserid}
+                          WHEN ${inboxParticipantsTable.seconduserid} = ${id} THEN ${inboxParticipantsTable.firstuserid}
+                        END`
+        })
         .from(inboxParticipantsTable)
         .where(
           sql`(${inboxParticipantsTable.firstuserid} = ${id})`
@@ -111,7 +116,10 @@ export class InboxparticipantsService {
         throw new NotFoundException(`No friends found for user with id: ${id}`);
       }
   
-      return result; // Return the result which contains all friends for the given user
+      // Filter out any null or undefined friends (in case of invalid data)
+      const friends = result.filter(friend => friend.friendId !== null);
+  
+      return friends; // Return the list of friends (the non-matching user IDs)
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve friends');
     }
