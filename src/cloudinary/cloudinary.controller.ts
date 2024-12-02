@@ -6,7 +6,6 @@ import {
   UseInterceptors,
   HttpStatus,
   HttpException,
-  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service'; // Assume you have created a DTO for update profile picture
@@ -19,7 +18,7 @@ export class CloudinaryController {
     private readonly usersService: UsersService,  // Inject UsersService to update profile
   ) {}
 
-  @Put('upload')
+  @Post('upload')
   @UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
   async uploadFile(
     @Body() updatepictureDto: any,  // Use proper DTO for the body
@@ -44,6 +43,7 @@ export class CloudinaryController {
       const { email, profilepicture } = updatepictureDto;
 
       console.log('Updating profile for email:', email);
+      console.log('New profile picture URL:', url);
 
       // Update the profile picture in the database (assuming UsersService handles user updates)
       const updateResult = await this.usersService.updateProfilePicture(email, url);
