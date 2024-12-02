@@ -98,6 +98,9 @@ export class UsersController {
     const result = await this.usersService.getAuthenticatedUser(email, password);
 
     const user=await this.usersService.getUserByEmail(email);
+    if (!user.activationstatus){
+      throw new BadRequestException('Account not activated, change your password to activate account')
+    }
     const damdata={result,user}
     return {result,user};
   }
