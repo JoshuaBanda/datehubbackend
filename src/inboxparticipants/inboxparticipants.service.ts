@@ -96,15 +96,26 @@ export class InboxparticipantsService {
     }
   }
     
+  async getFriends(id: number) {
+    try {
+      const result = await db
+        .select({ secondinboxid: inboxParticipantsTable.seconduserid })
+        .from(inboxParticipantsTable)
+        .where(
+          sql`(${inboxParticipantsTable.firstuserid} = ${id})`
+            .append(sql` OR (${inboxParticipantsTable.seconduserid} = ${id})`)
+        )
+        .execute();
   
-async getFriends(id:number){
-  const result=await db
-  .select({secondinboxid:inboxParticipantsTable.seconduserid})
-  .from(inboxParticipantsTable)
-  .where(eq(inboxParticipantsTable.firstuserid, id))
-  .execute()
-
-  return result;
-}
+      if (result.length === 0) {
+        throw new NotFoundException(`No friends found for user with id: ${id}`);
+      }
+  
+      return result; // Return the result which contains all friends for the given user
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve friends');
+    }
+  }
+  
   
 }
