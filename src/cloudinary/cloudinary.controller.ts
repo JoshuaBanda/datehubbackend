@@ -18,7 +18,7 @@ export class CloudinaryController {
     private readonly usersService: UsersService,  // Inject UsersService to update profile
   ) {}
 
-  @Post('upload')
+  @Put('upload')
   @UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
   async uploadFile(
     @Body() updatepictureDto: any,  // Use proper DTO for the body
