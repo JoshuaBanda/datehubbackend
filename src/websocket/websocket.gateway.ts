@@ -27,11 +27,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId = userId[0]; // Use the first element if it's an array
     }
 
-    if (typeof userId !== 'string') {
-      console.log('User ID is not a string. Received:', userId);
-      client.disconnect(); // Disconnect client if the userId is not a string
-      return;
-    }
 
     // Check if the user is already connected
     if (this.connectedUsers.has(userId)) {
