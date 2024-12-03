@@ -97,7 +97,7 @@ export class InboxparticipantsService {
   }
   async getFriends(id: number) {
     try {
-      // Execute the query to get friend IDs
+      // Execute the query
       const result = await db
         .select({
           friendId: sql`CASE 
@@ -111,22 +111,19 @@ export class InboxparticipantsService {
         )
         .execute();
   
-      // If no results are found, throw a NotFoundException
+      // If no results are found, throw an error
       if (result.length === 0) {
         throw new NotFoundException(`No friends found for user with id: ${id}`);
       }
   
-      // Map over the result and extract the 'friendId'
+      // Map over the result to extract the 'friendId'
       const friends = result.map((item: { friendId: number | null }) => item.friendId);
   
-      // Return an array of friendIds, filtering out null values
-      return friends.filter(friendId => friendId !== null) as number[];
+      // Filter out null values
+      return friends.filter(friendId => friendId !== null);
   
     } catch (error) {
-      // Catch any errors and throw an appropriate exception
-      if (error instanceof NotFoundException) {
-        throw error;  // Rethrow the NotFoundException to keep the specific error
-      }
+      // Handle any errors
       throw new InternalServerErrorException('Failed to retrieve friends');
     }
   }
