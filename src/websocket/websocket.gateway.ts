@@ -30,9 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Check if the user is already connected
     if (this.connectedUsers.has(userId)) {
-      console.log(`User ${userId} is already connected. Disconnecting new connection.`);
-      client.disconnect(); // Disconnect if the user is already connected
-      return;
+      console.log(`User ${userId} is already connected.`);
     }
 
     // Register the user as connected
@@ -40,7 +38,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`User ${userId} connected`);
 
     // Emit a message to all connected clients (or a specific user)
-    this.server.emit('message', { message: 'User connected', userId });
+    this.server.emit('message', { message: 'online', userId });
   }
 
   // When a client disconnects
