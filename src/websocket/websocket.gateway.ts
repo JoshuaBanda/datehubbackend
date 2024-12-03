@@ -10,58 +10,48 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Adjust for production security
+    origin: '*',  // Allow any origin, adjust for security in production
   },
 })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class WebSocketGatewayService implements OnGatewayConnection, OnGatewayDisconnect {
+  private clients: Map<string, Socket> = new Map(); // Map userId to socket connection
+
   @WebSocketServer() server: Server;
-  private connectedUsers: Map<string, Socket> = new Map(); // Track connected users by userId
 
-  // When a client connects
-  handleConnection(client: Socket) {
-    let userId = client.handshake.query.userId;
+  // Called when a client connects
+  async handleConnection(client: Socket) {
+    const userId = client.handshake.query.userId as string;  // Assuming userId is passed in the handshake query
 
-    // Ensure userId is a string (in case it's an array)
-    if (Array.isArray(userId)) {
-      console.log('Received an array for userId, taking the first element.');
-      userId = userId[0]; // Use the first element if it's an array
-    }
+    console.log(`Attempting to connect client with userId: ${userId}`);
 
     if (!userId) {
-      console.log('User ID missing');
+      console.log('User ID is missing in the connection request');
+      client.emit('error', 'User ID is required');
       client.disconnect();
       return;
     }
 
-    // Check if the user is already connected
-    if (this.connectedUsers.has(userId)) {
-      console.log(`User ${userId} is already connected. Disconnecting new connection.`);
-      client.disconnect(); // Disconnect if the user is already connected
-      return;
+    if (this.clients.has(userId)) {
+      // If the user is already connected, disconnect the previous socket
+      const existingSocket = this.clients.get(userId);
+      if (existingSocket) {
+        console.log(`Disconnecting previous socket for user: ${userId} (Socket ID: ${existingSocket.id})`);
+        existingSocket.disconnect(true);  // Forcefully disconnect the previous socket
+      }
     }
 
-    // Otherwise, register the user as connected
-    this.connectedUsers.set(userId, client);
-    console.log(`User ${userId} connected`);
-
-    // Emit a message to all connected clients (or a specific user)
-    this.server.emit('message', { message: 'User connected', userId });
+    // Add the new socket connection for the user
+    this.clients.set(userId, client);
+    console.log(`Client connected: ${userId} (Socket ID: ${client.id})`);
   }
 
-  // When a client disconnects
+  // Called when a client disconnects
   handleDisconnect(client: Socket) {
-    const userId = [...this.connectedUsers.entries()].find(([key, value]) => value === client)?.[0];
-    if (userId) {
-      this.connectedUsers.delete(userId); // Remove user from connected map
-      console.log(`User ${userId} disconnected`);
-    }
-  }
+    const userId = Array.from(this.clients.entries()).find(([_, socket]) => socket.id === client.id)?.[0];
 
-  // Custom event to refresh data
-  @SubscribeMessage('triggerRefresh')
-  handleRefresh(@MessageBody() data: any): void {
-    console.log('Refreshing data:', data);
-    // Emit to the specific user or all connected clients
-    this.server.emit('refresh', { data });
+    if (userId) {
+      this.clients.delete(userId);
+      console.log(`Client disconnected: ${userId} (Socket ID: ${client.id})`);
+    }
   }
 }
