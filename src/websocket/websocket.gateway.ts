@@ -6,6 +6,7 @@ import {
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
+import { timestamp } from 'drizzle-orm/mysql-core';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -49,12 +50,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(`User ${userId} disconnected`);
     }
   }
-
-  // Custom event to refresh data
   @SubscribeMessage('triggerRefresh')
-  handleRefresh(@MessageBody() data: any): void {
-    console.log('Refreshing data:', data);
-    // Emit to the specific user or all connected clients
+  handleRefresh(@MessageBody() msg: any): void {
+    console.log('Refreshing data:', msg);
+
+    // Set the `createdat` timestamp to the current time
+    const createdAt = new Date().toISOString();
+
+    // Prepare the data to be emitted
+    const data = { ...msg, createdat: createdAt };
+
+    // Emit the 'refresh' event with the data to all connected clients
     this.server.emit('refresh', { data });
   }
 }
