@@ -29,28 +29,28 @@ export class InboxparticipantsController {
 
 
   @Get(':id/chat')
-  async getAllUsers(@Param('id') id: string){
+  async getAllUsers(@Param('id') id: string) {
     const userIdCurrent = parseInt(id, 10);
-
-
-    
+  
     // Check if the parsed ID is a valid number
     if (isNaN(userIdCurrent)) {
       throw new BadRequestException('Invalid user ID'); // Handle invalid ID
     }
-    //fetching inboxes of current users
-    const result= await this.inboxparticipantsService.getFriends(userIdCurrent); // Pass as an array
-    
-    const data = result.map(item => item.secondinboxid);
-
-
-      //const usersFromRelatedUsers = related_users.map(({ firstuserid }) => firstuserid);
-    //given related users, we want to fetch from users table
-
-    const users= await this.inboxparticipantsService.getUserFromUsersTable(data);
-
+  
+    // Fetching friends of the current user
+    const result = await this.inboxparticipantsService.getFriends(userIdCurrent);
+  
+    // Now result is an array of friendIds, so you can directly pass it
+    const data = result;  // `result` is already an array of numbers (friendIds)
+  
+    // Fetch users from the users table based on the friendIds
+    const users = await this.inboxparticipantsService.getUserFromUsersTable(data);
+  
     return users;
   }
+
+  
+
   
 @Get('currentinbox/:otheruser/:currentuser')
 async getCurrentInbox(@Param() params: any) {
