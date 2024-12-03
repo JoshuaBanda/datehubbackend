@@ -10,7 +10,7 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',  // Adjust for production security or specify your frontend URL here
+    origin: '*', // Allow all origins during development
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -21,15 +21,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {
     let userId = client.handshake.query.userId;
 
-    // Ensure userId is a string (in case it's an array)
+    // Ensure that userId is a string (in case it's received as a number or an array)
     if (Array.isArray(userId)) {
       console.log('Received an array for userId, taking the first element.');
       userId = userId[0]; // Use the first element if it's an array
     }
 
-    if (!userId) {
-      console.log('User ID missing');
-      client.disconnect();
+    if (typeof userId !== 'string') {
+      console.log('User ID is not a string. Received:', userId);
+      client.disconnect(); // Disconnect client if the userId is not a string
       return;
     }
 
@@ -40,7 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    // Otherwise, register the user as connected
+    // Register the user as connected
     this.connectedUsers.set(userId, client);
     console.log(`User ${userId} connected`);
 
