@@ -1,8 +1,8 @@
 // src/websocket/websocket.module.ts
 import { Module } from '@nestjs/common';
-import { WebSocketGatewayService } from './websocket.gateway';
+import { ChatGateway } from './websocket.gateway';
 
 @Module({
-  providers: [WebSocketGatewayService],
+  providers: [ChatGateway],
 })
 export class WebSocketModule {}
