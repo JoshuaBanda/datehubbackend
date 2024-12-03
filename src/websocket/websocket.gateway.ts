@@ -59,9 +59,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // Custom event to refresh data
   @SubscribeMessage('triggerRefresh')
-  handleRefresh(@MessageBody() data: any): void {
+  handleRefresh(@MessageBody() data: any, client: Socket): void {
     console.log('Refreshing data:', data);
-    // Emit to the specific user or all connected clients
-    this.server.emit('refresh', { data });
+
+    // Emit to the specific user based on their socket ID
+    if (client) {
+      this.server.to(client.id).emit('refresh', { data });
+    } else {
+      // If no specific client, broadcast to all users
+      this.server.emit('refresh', { data });
+    }
   }
 }
