@@ -1,46 +1,59 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
-import { Server } from 'socket.io';
+import {
+  WebSocketGateway,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',  // Allow any origin, adjust for security in production
+    origin: '*', // Adjust for production security
   },
 })
-export class WebSocketGatewayService implements OnGatewayConnection, OnGatewayDisconnect {
-  private clients: Set<Socket> = new Set();
-
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
+  private connectedUsers: Map<string, Socket> = new Map();
 
-  // Called when a client connects
+  // When a client connects
   handleConnection(client: Socket) {
-    this.clients.add(client);
-    console.log(`Client connected: ${client.id}`);
+    let userId = client.handshake.query.userId;
+    
+    // Ensure userId is a string (in case it's an array)
+    if (Array.isArray(userId)) {
+      console.log('Received an array for userId, taking the first element.');
+      userId = userId[0]; // Use the first element if it's an array
+    }
+
+    if (!userId) {
+      console.log('User ID missing');
+      client.disconnect();
+      return;
+    }
+
+    this.connectedUsers.set(userId, client);
+    console.log(`User ${userId} connected`);
+
+    // Example of broadcasting a message
+    this.server.emit('message', { message: 'User connected', userId });
   }
 
-  // Called when a client disconnects
+  // When a client disconnects
   handleDisconnect(client: Socket) {
-    this.clients.delete(client);
-    console.log(`Client disconnected: ${client.id}`);
+    const userId = [...this.connectedUsers.entries()].find(([key, value]) => value === client)?.[0];
+    if (userId) {
+      this.connectedUsers.delete(userId);
+      console.log(`User ${userId} disconnected`);
+    }
   }
 
+  // Custom event to refresh data
   @SubscribeMessage('triggerRefresh')
-  handleRefresh(@MessageBody() message: any, @ConnectedSocket() senderSocket: Socket): void {
-    console.log('Received refresh request:', message);
-
-    // Add timestamp to the data
-    const createdat = new Date().toISOString(); // Current timestamp in ISO format
-    const data = {
-      ...message,  // Existing data
-      createdat, // Add timestamp to data
-    };
-    console.log('Data with timestamp:', data);
-
-    // Emit refresh event to all connected clients except the sender
-    this.clients.forEach((client) => {
-      if (client.id !== senderSocket.id) { // Skip the sender
-        client.emit('refresh', { data });
-      }
-    });
+  handleRefresh(@MessageBody() data: any): void {
+    console.log('Refreshing data:', data);
+    // Emit to the specific user or all connected clients
+    this.server.emit('refresh', { data });
   }
 }
