@@ -1,10 +1,18 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { insertPost, selectPost, post, usersTable, selectUsers } from 'src/db/schema';
-import { db } from 'src/db';
-import { eq, sql } from 'drizzle-orm';
+import { insertPost, selectPost, post, usersTable, selectUsers } from 'src/db/schema';;
+import { UploadApiErrorResponse, UploadApiResponse, v2 } from "cloudinary";
+import { eq, sql } from "drizzle-orm";
+import { db } from "src/db";
 
 @Injectable()
 export class PostService {
+  constructor() {
+    v2.config({
+      cloud_name: 'dfahzd3ky',
+      api_key: '377379954858251',
+      api_secret: 'Cxu4QkxXCmd400-VWttlRZ_w9p8',
+    });
+  }
 
   // Create a new post
   async createPost(data: insertPost): Promise<selectPost | null> {
@@ -65,7 +73,7 @@ export class PostService {
       // Map posts and ensure that every post has a username
       const postsWithUsernames = results.map(post => ({
         ...post, // Spread the existing post fields
-        username: user ? user.username : 'anonymous', // If user found, use username, otherwise set 'anonymous'
+        username: user ? user.username : 'anonymous', // Query for username and fallback to 'anonymous' if not found
       }));
   
       return postsWithUsernames; // Return posts with the username (either real or 'anonymous')
@@ -100,13 +108,21 @@ export class PostService {
         return null;
       }
   
-      // Adding username fallback if no user is found for any post
-      const postsWithUsernames = results.map(post => ({
-        ...post, 
-        username: 'anonymous', // Default username if no user found (since likes table may not have user data)
+      // Query for usernames and fallback to 'anonymous' if user is not found
+      const postsWithUsernames = await Promise.all(results.map(async (post) => {
+        const [user] = await db
+          .select({ username: usersTable.firstname })
+          .from(usersTable)
+          .where(eq(usersTable.userid, post.user_id))
+          .execute();
+        
+        return {
+          ...post,
+          username: user ? user.username : 'anonymous', // Use real username or default to 'anonymous'
+        };
       }));
 
-      return postsWithUsernames; // Return liked posts with 'anonymous' username
+      return postsWithUsernames;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve liked posts');
@@ -126,10 +142,18 @@ export class PostService {
         return null;
       }
   
-      // Assuming we want to add 'anonymous' username in case no user exists
-      const postsWithUsernames = results.map(post => ({
-        ...post,
-        username: 'anonymous', // Default to 'anonymous' for all posts if username isn't fetched
+      // Query for usernames and fallback to 'anonymous' if user is not found
+      const postsWithUsernames = await Promise.all(results.map(async (post) => {
+        const [user] = await db
+          .select({ username: usersTable.firstname })
+          .from(usersTable)
+          .where(eq(usersTable.userid, post.user_id))
+          .execute();
+        
+        return {
+          ...post,
+          username: user ? user.username : 'anonymous', // Use real username or default to 'anonymous'
+        };
       }));
 
       return postsWithUsernames;
@@ -173,4 +197,70 @@ export class PostService {
       throw new InternalServerErrorException('Failed to delete post');
     }
   }
+
+  async uploadImage(fileBuffer: Buffer, fileName: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = v2.uploader.upload_stream(
+        {
+          resource_type: 'auto',
+          public_id: fileName, // Use fileName as public_id if desired
+          folder: 'farmsmart' // Optionally specify a folder
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            return reject(error);
+          }
+          console.log('Cloudinary upload result:', result); // Log the result
+          resolve(result);
+        }
+      );
+
+      uploadStream.end(fileBuffer); // End the stream with the buffer
+    });
+  }
+  async deleteImage(publicId: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+        v2.uploader.destroy(publicId, { invalidate: true }, (error, result) => {
+            if (error) {
+                console.error('Cloudinary delete error:', error); // Log detailed error
+                return reject(error);
+            }
+            console.log('Cloudinary delete result:', result);
+            resolve(result);
+        });
+    });
+}
+
+
+async updateProfilePicture(email: string, profilepicture: string) {
+  try {
+    // Check if the email and name are valid (optional validation)
+
+
+    if (!email || !profilepicture) {
+      throw new Error('Invalid input data');
+    }
+    console.log('chec',email,profilepicture);
+
+    // Perform the update operation
+    const result = await db
+      .update(usersTable)
+      .set({ profilepicture: profilepicture })
+      .where(eq(usersTable.email, email));
+
+    // Check if any rows were updated (if result is empty, no matching user was found)
+    if (result.count === 0) {
+      throw new Error(`No user found with the email: ${email}`);
+    }
+
+    // Return a success message with the updated data
+    return { message: ' updated successfully', updatedRows: result.count };
+  } catch (error) {
+    // Log the error and throw a more user-friendly error
+    console.error('Error updating :', error);
+    throw new Error('Failed to update . Please try again later.');
+  }
+}
+
 }
