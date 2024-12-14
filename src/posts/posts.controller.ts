@@ -18,7 +18,7 @@ async createPost(
   if (!file) {
     throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
   }
-
+  
   try {
     // Upload file to Cloudinary
     const result = await this.postService.uploadImage(file.buffer, file.originalname);

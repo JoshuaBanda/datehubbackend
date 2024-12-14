@@ -24,7 +24,7 @@ export class PostService {
   
       return newPost; // Return the inserted post data
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create post');
+      throw new InternalServerErrorException('Failed to create post',error);
     }
   }
 
