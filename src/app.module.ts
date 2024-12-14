@@ -21,10 +21,16 @@ import { CropModule } from './crop/crop.module';
 import { LiveStockRecordModule } from './live-stock-record/live-stock-record.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { WebSocketModule } from './websocket/websocket.module';
+import { PostsModule } from './posts/posts.module';
+import { PostCommentsModule } from './post-comments/post-comments.module';
+import { PostLikesModule } from './post-likes/post-likes.module';
 
 @Module({
   imports: [MessageModule, UsersModule, CashBookModule, InboxModule, InboxparticipantsModule, StartconversationModule, LedgerModule, LedgerEntryModule, EmailModule, OtpModule, UserAunthenticationModule, CropRecordModule, LiveStockModule, CropModule, LiveStockRecordModule, CloudinaryModule,
-    WebSocketModule
+    WebSocketModule,
+    PostsModule,
+    PostCommentsModule,
+    PostLikesModule
   ],
   controllers: [AppController,StartConversaation],
   providers: [AppService,InboxparticipantsService,InboxService],

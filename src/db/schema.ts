@@ -5,16 +5,7 @@ import { pgTable, serial, text, integer, timestamp, primaryKey, boolean } from '
 
 // Define your tablesimport { pgTable, serial, text, boolean } from 'drizzle-orm/pg-core';
 
-export const usersTable = pgTable('users', {
-    userid: serial('userid').primaryKey(),
-    firstname: text('firstname').notNull(),
-    lastname: text('lastname').notNull(),
-    profilepicture: text('profilepicture').notNull(),
-    email: text('email').unique(),
-    password: text('password').notNull(),
-    activationstatus: boolean('activationstatus').notNull(),
-  });
-    
+
 
 export const inboxTable = pgTable('inbox', {
     inboxid: serial('inboxid').primaryKey(),
@@ -96,8 +87,6 @@ export type insertcashBookTable=typeof cashBookTable.$inferInsert;
 export type selectcashBookTable=typeof cashBookTable.$inferSelect;
 
 
-export type insertUsers=typeof usersTable.$inferInsert;
-export type selectUsers=typeof usersTable.$inferSelect;
 
 export type insertInbox=typeof inboxTable.$inferInsert;
 export type selectInbox=typeof inboxTable.$inferSelect;
@@ -149,3 +138,58 @@ export const livestock_record=pgTable('livestock_record',{
 })
 export type selectLivestockRecord=typeof livestock_record.$inferSelect;
 export type insertLivestockRecord=typeof livestock_record.$inferInsert;
+
+
+
+
+export const usersTable = pgTable('users', {
+    userid: serial('userid').primaryKey(),
+    firstname: text('firstname').notNull(),
+    lastname: text('lastname').notNull(),
+    profilepicture: text('profilepicture').notNull(),
+    email: text('email').unique(),
+    password: text('password').notNull(),
+    activationstatus: boolean('activationstatus').notNull(),
+  });
+
+export type insertUsers=typeof usersTable.$inferInsert;
+export type selectUsers=typeof usersTable.$inferSelect;
+
+    
+export const post=pgTable('post',{
+    post_id:serial('post_id').primaryKey(),
+    description:text('description').notNull(),
+    photo_url:text('photo_url').notNull(),
+    user_id:integer('user_id')
+        .notNull()
+        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+})
+
+export type selectPost=typeof post.$inferSelect;
+export type insertPost=typeof post.$inferInsert;
+
+
+export const likes=pgTable('likes',{
+    like_id:serial('like_id').primaryKey(),
+    post_id:integer('post_id').notNull()
+        .references(()=>post.post_id,{onDelete:'cascade'}),
+    user_id:integer('user_id').notNull().references(()=>usersTable.userid,{onDelete:'cascade'})
+})
+
+export type selectLikes=typeof likes.$inferSelect;
+export type insertLikes=typeof likes.$inferInsert;
+
+
+export const comments=pgTable('comments',{
+    comment_id:serial('comment_id').primaryKey(),
+
+    comment:text('comment').notNull(),
+    post_id:integer('post_id').notNull()
+        .references(()=>post.post_id,{onDelete:'cascade'}),
+    user_id:integer('user_id').notNull()
+        .references(()=>usersTable.userid,{onDelete:'cascade'})    
+})
+
+
+export type selectComments=typeof comments.$inferSelect;
+export type insertComments=typeof comments.$inferInsert;
