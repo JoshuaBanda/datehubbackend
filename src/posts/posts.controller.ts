@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, HttpException, HttpStatus, Patch, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, HttpException, HttpStatus, Patch, UseInterceptors, UploadedFile, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostService } from './posts.service';
@@ -81,4 +81,19 @@ async createPost(
       throw new HttpException('Failed to delete post', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
+  @Get('user/:userId')
+  async getPostsByUserId(@Param('userId') userId: number) {
+    const posts = await this.postService.getPostsByUser(userId);
+
+    // If no posts found, throw a NotFoundException
+    if (!posts) {
+      throw new NotFoundException('No posts found for this user');
+    }
+
+    // Return the posts with username
+    return posts;
+  }
+
 }
