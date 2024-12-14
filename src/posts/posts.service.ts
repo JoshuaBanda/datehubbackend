@@ -41,19 +41,50 @@ export class PostService {
   }
 
   // Get all posts by a user ID
-  async getPostsByUser(userId: selectUsers['userid']): Promise<selectPost[] | null> {
+  async getPostsByUser(userId: selectUsers['userid']): Promise<(selectPost & { username?: string })[] | null> {
     try {
+      // Fetching posts for the specific user
       const results = await db
         .select()
         .from(post)
         .where(eq(post.user_id, userId))
         .execute();
   
-      return results.length > 0 ? results : null; // Return null if no posts found
+      // If no posts are found, return null
+      if (results.length === 0) {
+        return null;
+      }
+  
+      // Assuming user_id is present in the first post, fetch username
+      const userIdFromPost = results[0].user_id; // Access user_id from the first post
+  
+      // Fetching the username for that user
+      const [user] = await db
+        .select({ username: usersTable.firstname }) // Fetch the username
+        .from(usersTable)
+        .where(eq(usersTable.userid, userIdFromPost))
+        .execute();
+  
+      // If the user is found, include the username in the post objects
+      if (user) {
+        const postsWithUsernames = results.map(post => ({
+          ...post, // Spread the existing post fields
+          username: user.username, // Add username to the post
+        }));
+  
+        return postsWithUsernames; // Return posts with added username
+      } else {
+        // If no user is found, return the posts without username (or handle the case as needed)
+        return results; // The posts without username
+      }
     } catch (error) {
+      // Logging the error for better debugging
+      console.error(error);
       throw new InternalServerErrorException('Failed to retrieve posts');
     }
   }
+  
+  
 
   // Update a post's description
   async updatePostDescription(postId: selectPost['post_id'], newDescription: string): Promise<void> {
