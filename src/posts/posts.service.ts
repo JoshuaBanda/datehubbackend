@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { insertPost, selectPost, post, usersTable, selectUsers } from 'src/db/schema';
+import { insertPost, selectPost, post, usersTable, selectUsers } from 'src/db/schema';;
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from "cloudinary";
 import { eq, sql } from "drizzle-orm";
 import { db } from "src/db";
@@ -24,7 +24,7 @@ export class PostService {
   
       return newPost; // Return the inserted post data
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create post', error);
+      throw new InternalServerErrorException('Failed to create post',error);
     }
   }
 
@@ -48,7 +48,7 @@ export class PostService {
   }
 
   // Get all posts by a user ID
-  async getPostsByUser(userId: selectUsers['userid']): Promise<(selectPost & { username: string, lastname: string, profilepicture: string })[] | null> {
+  async getPostsByUser(userId: selectUsers['userid']): Promise<(selectPost & { username: string })[] | null> {
     try {
       const results = await db
         .select()
@@ -63,26 +63,20 @@ export class PostService {
   
       const userIdFromPost = results[0].user_id; // Access user_id from the first post
   
-      // Fetching the username (firstname, lastname) and profile picture for that user
+      // Fetching the username for that user
       const [user] = await db
-        .select({
-          firstname: usersTable.firstname,
-          lastname: usersTable.lastname,
-          profilepicture: usersTable.profilepicture,
-        })
+        .select({ username: usersTable.firstname }) // Fetch the username (using firstname as per your query)
         .from(usersTable)
         .where(eq(usersTable.userid, userIdFromPost))
         .execute();
   
-      // Map posts and ensure that every post has a username and other fields
-      const postsWithUserDetails = results.map(post => ({
+      // Map posts and ensure that every post has a username
+      const postsWithUsernames = results.map(post => ({
         ...post, // Spread the existing post fields
-        username: user ? user.firstname : 'anonymous', // Query for username (firstname)
-        lastname: user ? user.lastname : '', // Query for lastname
-        profilepicture: user ? user.profilepicture : '', // Query for profilepicture
+        username: user ? user.username : 'anonymous', // Query for username and fallback to 'anonymous' if not found
       }));
   
-      return postsWithUserDetails; // Return posts with username, lastname, and profile picture
+      return postsWithUsernames; // Return posts with the username (either real or 'anonymous')
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve posts');
@@ -90,7 +84,7 @@ export class PostService {
   }
 
   // Get posts liked by a user
-  async getPostsLikedByUser(userId: selectUsers['userid']): Promise<(selectPost & { username: string, lastname: string, profilepicture: string })[] | null> {
+  async getPostsLikedByUser(userId: selectUsers['userid']): Promise<(selectPost & { username: string })[] | null> {
     try {
       const results = await db
         .select({
@@ -114,27 +108,21 @@ export class PostService {
         return null;
       }
   
-      // Query for user details (username, lastname, profilepicture) and fallback to defaults if not found
-      const postsWithUserDetails = await Promise.all(results.map(async (post) => {
+      // Query for usernames and fallback to 'anonymous' if user is not found
+      const postsWithUsernames = await Promise.all(results.map(async (post) => {
         const [user] = await db
-          .select({
-            firstname: usersTable.firstname,
-            lastname: usersTable.lastname,
-            profilepicture: usersTable.profilepicture,
-          })
+          .select({ username: usersTable.firstname })
           .from(usersTable)
           .where(eq(usersTable.userid, post.user_id))
           .execute();
         
         return {
           ...post,
-          username: user ? user.firstname : 'anonymous', // Use firstname for username
-          lastname: user ? user.lastname : '', // Use lastname
-          profilepicture: user ? user.profilepicture : '', // Use profile picture
+          username: user ? user.username : 'anonymous', // Use real username or default to 'anonymous'
         };
       }));
 
-      return postsWithUserDetails;
+      return postsWithUsernames;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve liked posts');
@@ -142,7 +130,7 @@ export class PostService {
   }
 
   // Get all posts
-  async getAllPost(): Promise<(selectPost & { username: string, lastname: string, profilepicture: string })[] | null> {
+  async getAllPost(): Promise<(selectPost & { username: string })[] | null> {
     try {
       const results = await db
         .select()
@@ -154,27 +142,21 @@ export class PostService {
         return null;
       }
   
-      // Query for user details (username, lastname, profilepicture) and fallback to defaults if not found
-      const postsWithUserDetails = await Promise.all(results.map(async (post) => {
+      // Query for usernames and fallback to 'anonymous' if user is not found
+      const postsWithUsernames = await Promise.all(results.map(async (post) => {
         const [user] = await db
-          .select({
-            firstname: usersTable.firstname,
-            lastname: usersTable.lastname,
-            profilepicture: usersTable.profilepicture,
-          })
+          .select({ username: usersTable.firstname })
           .from(usersTable)
           .where(eq(usersTable.userid, post.user_id))
           .execute();
         
         return {
           ...post,
-          username: user ? user.firstname : 'anonymous', // Use firstname for username
-          lastname: user ? user.lastname : '', // Use lastname
-          profilepicture: user ? user.profilepicture : '', // Use profile picture
+          username: user ? user.username : 'anonymous', // Use real username or default to 'anonymous'
         };
       }));
 
-      return postsWithUserDetails;
+      return postsWithUsernames;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve posts');
@@ -216,7 +198,6 @@ export class PostService {
     }
   }
 
-  // Upload image to Cloudinary
   async uploadImage(fileBuffer: Buffer, fileName: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = v2.uploader.upload_stream(
@@ -238,8 +219,6 @@ export class PostService {
       uploadStream.end(fileBuffer); // End the stream with the buffer
     });
   }
-
-  // Delete image from Cloudinary
   async deleteImage(publicId: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
         v2.uploader.destroy(publicId, { invalidate: true }, (error, result) => {
@@ -251,30 +230,37 @@ export class PostService {
             resolve(result);
         });
     });
-  }
+}
 
-  // Update profile picture
-  async updateProfilePicture(email: string, profilepicture: string) {
-    try {
-      if (!email || !profilepicture) {
-        throw new Error('Invalid input data');
-      }
-      console.log('chec', email, profilepicture);
 
-      // Perform the update operation
-      const result = await db
-        .update(usersTable)
-        .set({ profilepicture: profilepicture })
-        .where(eq(usersTable.email, email));
+async updateProfilePicture(email: string, profilepicture: string) {
+  try {
+    // Check if the email and name are valid (optional validation)
 
-      if (result.count === 0) {
-        throw new Error(`No user found with the email: ${email}`);
-      }
 
-      return { message: 'Updated successfully', updatedRows: result.count };
-    } catch (error) {
-      console.error('Error updating :', error);
-      throw new Error('Failed to update. Please try again later.');
+    if (!email || !profilepicture) {
+      throw new Error('Invalid input data');
     }
+    console.log('chec',email,profilepicture);
+
+    // Perform the update operation
+    const result = await db
+      .update(usersTable)
+      .set({ profilepicture: profilepicture })
+      .where(eq(usersTable.email, email));
+
+    // Check if any rows were updated (if result is empty, no matching user was found)
+    if (result.count === 0) {
+      throw new Error(`No user found with the email: ${email}`);
+    }
+
+    // Return a success message with the updated data
+    return { message: ' updated successfully', updatedRows: result.count };
+  } catch (error) {
+    // Log the error and throw a more user-friendly error
+    console.error('Error updating :', error);
+    throw new Error('Failed to update . Please try again later.');
   }
+}
+
 }
