@@ -28,19 +28,43 @@ export class PostCommentsService {
   
 
   // Get all comments for a specific post
-  async getCommentsByPost(postId: selectPost['post_id']): Promise<selectComments[] | null> {
+  async getCommentsByPost(postId: selectPost['post_id']): Promise<any | null> {
     try {
+      // Retrieve all comments for the given post
       const commentsResult = await db
         .select()
         .from(comments)
         .where(eq(comments.post_id, postId)) // Filter by post_id
         .execute();
-
-      return commentsResult.length > 0 ? commentsResult : null; // Return comments or null
+  
+      // If no comments are found, return null
+      if (commentsResult.length === 0) {
+        return null;
+      }
+  
+      // Fetch user information for each comment
+      const commentsWithUserInfo = await Promise.all(
+        commentsResult.map(async (comment) => {
+          const [user] = await db
+            .select({ username: usersTable.firstname, lastname: usersTable.lastname, profilepicture: usersTable.profilepicture })
+            .from(usersTable)
+            .where(eq(usersTable.userid, comment.user_id)) // Join with usersTable to get the user's info
+            .execute();
+  
+          return {
+            ...comment, // Add all comment fields
+            username: user ? `${user.username} ${user.lastname}` : 'Anonymous', // Use username and lastname
+            profilepicture: user ? user.profilepicture : null, // Include profile picture
+          };
+        })
+      );
+  
+      return commentsWithUserInfo; // Return comments along with the user info
     } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve comments');
+      throw new InternalServerErrorException('Failed to retrieve comments with user information');
     }
   }
+  
 
   // Get a comment by its ID
   async getCommentById(commentId: selectComments['comment_id']): Promise<selectComments | null> {

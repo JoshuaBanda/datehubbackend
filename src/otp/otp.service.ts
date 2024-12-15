@@ -68,8 +68,6 @@ export class OtpService {
    return this.userService.getUserByEmail(email);
 
     }
-    return 'user unverified'
-
   }
 
   // Generate JWT access token
