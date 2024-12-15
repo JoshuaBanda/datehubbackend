@@ -11,8 +11,8 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail', // Example with Gmail (change according to your provider)
       auth: {
-        user: 'unimadating@gmail.com', // Your email address
-        pass: 'tiongebanda2004', // Your email password or app password
+        user: 'bsc-inf-04-22@unima.ac.mw', // Your email address
+        pass: 'tiongebanda', // Your email password or app password
       },
     });
   }
@@ -28,8 +28,8 @@ export class EmailService {
     const mailOptions = {
       from: process.env.SMTP_USER, // Your email address
       to: email,
-      subject: 'Verify Your Email, Unima Dating Hub',
-      text: `Your OTP is: ${otp}. This OTP is valid for 10 minutes.`,
+      subject: 'Your OTP for Email Verification, Unima Dating',
+      text: `Your OTP is: ${otp}. This OTP is valid for 10 minutes. `,
     };
 
     try {
