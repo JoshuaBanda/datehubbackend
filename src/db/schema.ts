@@ -1,7 +1,7 @@
 
 import { table } from 'console';
 import 'dotenv/config';
-import { pgTable, serial, text, integer, timestamp, primaryKey, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, primaryKey, boolean, date } from 'drizzle-orm/pg-core';
 
 // Define your tablesimport { pgTable, serial, text, boolean } from 'drizzle-orm/pg-core';
 
@@ -45,49 +45,6 @@ export const inboxParticipantsTable = pgTable('inboxparticipants', {
 
 
 
-export const cashBookTable=pgTable('cash_book',{
-    id:serial('id').primaryKey(),
-    dr_date_of_transaction:timestamp('cr_date_of_transaction').defaultNow(),
-    dr_product_name:text('cr_product_name').notNull(),
-    dr_contractor:text('cr_contractor').notNull(),
-
-
-    cr_date_of_transaction:timestamp('cr_date_of_transaction').defaultNow(),
-    cr_product_name:text('cr_product_name').notNull(),
-    cr_contractor:text('cr_contractor').notNull(),
-})
-
-export const ledgerAccount = pgTable('legderAccount', {
-    ledgerAccountid: serial('ledgerAccountid').primaryKey(),  // Example column
-    itemname:text('itemname').notNull(),
-    transactor:text('transactor').notNull(),
-    type:text('type').notNull(),//expense ledger / income ledger
-    date: timestamp('date').defaultNow(),
-});
-export const ledgerAccountEntry = pgTable('legderAccountEntry', {
-    id: serial('id').primaryKey(),  // Example column
-    type:text('type').notNull(),//dr /cr
-    
-    description: text('description').notNull(),  // Add any relevant columns
-    amount: integer('amount').notNull(),
-    date: timestamp('date').defaultNow(),
-    ledgerAccountid: integer('ledgerAccountId')
-        .notNull()
-        .references(() => ledgerAccount.ledgerAccountid, { onDelete: 'cascade' }),
-    
-});
-export type insertledgerAccount=typeof ledgerAccount.$inferInsert;
-export type selectledgerAccount=typeof ledgerAccount.$inferSelect;
-
-
-export type insertledgerAccountEntry=typeof ledgerAccountEntry.$inferInsert;
-export type selectledgerAccountEntry=typeof ledgerAccountEntry.$inferSelect;
-
-export type insertcashBookTable=typeof cashBookTable.$inferInsert;
-export type selectcashBookTable=typeof cashBookTable.$inferSelect;
-
-
-
 export type insertInbox=typeof inboxTable.$inferInsert;
 export type selectInbox=typeof inboxTable.$inferSelect;
 
@@ -98,46 +55,6 @@ export type insertMessages=typeof messagesTable.$inferInsert;
 export type selectMessages=typeof messagesTable.$inferSelect;
 
 
-
-
-//Gizzoh
-export const crop=pgTable('crop',{
-    cropid:serial('cropid').primaryKey(),
-    name:text('name').notNull(),
-    quality:text('quality').notNull(),
-    status:text('status').notNull(),
-});
-export type selectCrop=typeof crop.$inferSelect;
-export type insertCrop=typeof crop.$inferInsert;
-
-
-export const livestock=pgTable('livestock',{
-    livestockid:serial('livestockid').primaryKey(),
-    breed:text('breed').notNull(),
-    age:integer('age').notNull(),
-    quantity:integer('quantity').notNull(),
-    healthy_status:text('healthy_status').notNull(),
-});
-export type selectLivestock=typeof livestock.$inferSelect;
-export type insertLivestock=typeof livestock.$inferInsert;
-
-export const crop_record=pgTable('crop_record',{
-    crop_record_id:serial('crop_record_id').primaryKey(),
-    data:text('data'),
-    activity:text('activity'),
-    notes:text('notes'),
-});
-export type selectCropRecord=typeof crop_record.$inferSelect;
-export type insertCropRecord=typeof crop_record.$inferInsert;
-
-export const livestock_record=pgTable('livestock_record',{
-    livestock_record_id:serial('livestock_record_id').primaryKey(),
-    data:text('data'),
-    activity:text('activity'),
-    notes:text('notes'),
-})
-export type selectLivestockRecord=typeof livestock_record.$inferSelect;
-export type insertLivestockRecord=typeof livestock_record.$inferInsert;
 
 
 
@@ -193,3 +110,40 @@ export const comments=pgTable('comments',{
 
 export type selectComments=typeof comments.$inferSelect;
 export type insertComments=typeof comments.$inferInsert;
+
+
+export const user_characteristics=pgTable('user_characteristics',{
+    id:serial('id').primaryKey(),
+    user_id:integer('user_id').notNull()
+        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    dob:date('dob').notNull(),
+    sex:text('sex').notNull(),
+    height:integer('height').notNull(),
+    skin_color:text('skin_color').notNull(),
+    hobby:text('hobby').notNull(),
+    location:text('location').notNull(),
+    program_of_study:text('program_of_study').notNull(),
+    year_of_study:integer('year_of_study').notNull(),
+});
+
+export type insert_user_characteristics=typeof user_characteristics.$inferInsert;
+export type select_user_characteristics=typeof user_characteristics.$inferSelect;
+
+
+
+export const preferences=pgTable('preferences',{
+    id:serial('id').primaryKey(),
+    user_id:integer('user_id').notNull()
+        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    preferred_dob:date('dob').notNull(),
+    preferred_sex:text('sex').notNull(),
+    preferred_height:integer('height').notNull(),
+    preferred_skin_color:text('skin_color').notNull(),
+    preferred_hobby:text('hobby').notNull(),
+    preferred_location:text('location').notNull(),
+    preferred_program_of_study:text('program_of_study').notNull(),
+    preferred_year_of_study:integer('year_of_study').notNull(),
+});
+
+export type insert_preferences=typeof preferences.$inferInsert;
+export type select_preferences=typeof preferences.$inferSelect;

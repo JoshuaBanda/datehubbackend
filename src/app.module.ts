@@ -17,13 +17,17 @@ import { WebSocketModule } from './websocket/websocket.module';
 import { PostsModule } from './posts/posts.module';
 import { PostCommentsModule } from './post-comments/post-comments.module';
 import { PostLikesModule } from './post-likes/post-likes.module';
+import { UserCharacteristicsModule } from './user_characteristics/user_characteristics.module';
+import { PreferencesModule } from './preferences/preferences.module';
 
 @Module({
   imports: [MessageModule, UsersModule, InboxModule, InboxparticipantsModule, StartconversationModule, EmailModule, OtpModule, UserAunthenticationModule, CloudinaryModule,
     WebSocketModule,
     PostsModule,
     PostCommentsModule,
-    PostLikesModule
+    PostLikesModule,
+    UserCharacteristicsModule,
+    PreferencesModule
   ],
   controllers: [AppController,StartConversaation],
   providers: [AppService,InboxparticipantsService,InboxService],

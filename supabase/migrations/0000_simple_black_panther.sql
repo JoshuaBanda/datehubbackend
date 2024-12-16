@@ -1,29 +1,8 @@
-CREATE TABLE IF NOT EXISTS "cash_book" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cr_date_of_transaction" timestamp DEFAULT now(),
-	"cr_product_name" text NOT NULL,
-	"cr_contractor" text NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "comments" (
 	"comment_id" serial PRIMARY KEY NOT NULL,
 	"comment" text NOT NULL,
 	"post_id" integer NOT NULL,
 	"user_id" integer NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "crop" (
-	"cropid" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"quality" text NOT NULL,
-	"status" text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "crop_record" (
-	"crop_record_id" serial PRIMARY KEY NOT NULL,
-	"data" text,
-	"activity" text,
-	"notes" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "inboxparticipants" (
@@ -38,42 +17,10 @@ CREATE TABLE IF NOT EXISTS "inbox" (
 	"lastmessage" text
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "legderAccount" (
-	"ledgerAccountid" serial PRIMARY KEY NOT NULL,
-	"itemname" text NOT NULL,
-	"transactor" text NOT NULL,
-	"type" text NOT NULL,
-	"date" timestamp DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "legderAccountEntry" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"type" text NOT NULL,
-	"description" text NOT NULL,
-	"amount" integer NOT NULL,
-	"date" timestamp DEFAULT now(),
-	"ledgerAccountId" integer NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "likes" (
 	"like_id" serial PRIMARY KEY NOT NULL,
 	"post_id" integer NOT NULL,
 	"user_id" integer NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "livestock" (
-	"livestockid" serial PRIMARY KEY NOT NULL,
-	"breed" text NOT NULL,
-	"age" integer NOT NULL,
-	"quantity" integer NOT NULL,
-	"healthy_status" text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "livestock_record" (
-	"livestock_record_id" serial PRIMARY KEY NOT NULL,
-	"data" text,
-	"activity" text,
-	"notes" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "messages" (
@@ -88,6 +35,32 @@ CREATE TABLE IF NOT EXISTS "post" (
 	"description" text NOT NULL,
 	"photo_url" text NOT NULL,
 	"user_id" integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "preferences" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
+	"dob" date NOT NULL,
+	"sex" text NOT NULL,
+	"height" integer NOT NULL,
+	"skin_color" text NOT NULL,
+	"hobby" text NOT NULL,
+	"location" text NOT NULL,
+	"program_of_study" text NOT NULL,
+	"year_of_study" integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "user_characteristics" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
+	"dob" date NOT NULL,
+	"sex" text NOT NULL,
+	"height" integer NOT NULL,
+	"skin_color" text NOT NULL,
+	"hobby" text NOT NULL,
+	"location" text NOT NULL,
+	"program_of_study" text NOT NULL,
+	"year_of_study" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
@@ -132,12 +105,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "legderAccountEntry" ADD CONSTRAINT "legderAccountEntry_ledgerAccountId_legderAccount_ledgerAccountid_fk" FOREIGN KEY ("ledgerAccountId") REFERENCES "public"."legderAccount"("ledgerAccountid") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "likes" ADD CONSTRAINT "likes_post_id_post_post_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."post"("post_id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -163,6 +130,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "post" ADD CONSTRAINT "post_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "preferences" ADD CONSTRAINT "preferences_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "user_characteristics" ADD CONSTRAINT "user_characteristics_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
