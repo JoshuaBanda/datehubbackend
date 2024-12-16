@@ -14,6 +14,35 @@ export class PostService {
     });
   }
 
+
+  async  uploadImage(fileBuffer: Buffer, fileName: string, quality: number): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = v2.uploader.upload_stream(
+        {
+          resource_type: 'auto',  // Automatically detect file type
+          public_id: fileName,    // Use fileName as public_id
+          folder: 'farmsmart',    // Optionally specify a folder
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },  // Resize to fit within 800x600
+            { quality: quality },  // Specify custom quality (e.g., 80)
+          ],
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            return reject(error);
+          }
+          console.log('Cloudinary upload result:', result); // Log the result
+          resolve(result);
+        }
+      );
+  
+      uploadStream.end(fileBuffer); // End the stream with the buffer
+    });
+  }
+  
+  
+
   // Create a new post
   async createPost(data: insertPost): Promise<selectPost | null> {
     try {
@@ -216,28 +245,6 @@ export class PostService {
     }
   }
 
-  // Upload image to Cloudinary
-  async uploadImage(fileBuffer: Buffer, fileName: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    return new Promise((resolve, reject) => {
-      const uploadStream = v2.uploader.upload_stream(
-        {
-          resource_type: 'auto',
-          public_id: fileName, // Use fileName as public_id if desired
-          folder: 'farmsmart' // Optionally specify a folder
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error);
-            return reject(error);
-          }
-          console.log('Cloudinary upload result:', result); // Log the result
-          resolve(result);
-        }
-      );
-
-      uploadStream.end(fileBuffer); // End the stream with the buffer
-    });
-  }
 
   // Delete image from Cloudinary
   async deleteImage(publicId: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
@@ -277,4 +284,9 @@ export class PostService {
       throw new Error('Failed to update. Please try again later.');
     }
   }
+
+
+
+
+
 }

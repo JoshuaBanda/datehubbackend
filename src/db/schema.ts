@@ -111,20 +111,21 @@ export const comments=pgTable('comments',{
 export type selectComments=typeof comments.$inferSelect;
 export type insertComments=typeof comments.$inferInsert;
 
-
-export const user_characteristics=pgTable('user_characteristics',{
-    id:serial('id').primaryKey(),
-    user_id:integer('user_id').notNull()
-        .references(()=>usersTable.userid,{onDelete:'cascade'}),
-    dob:date('dob').notNull(),
-    sex:text('sex').notNull(),
-    height:integer('height').notNull(),
-    skin_color:text('skin_color').notNull(),
-    hobby:text('hobby').notNull(),
-    location:text('location').notNull(),
-    program_of_study:text('program_of_study').notNull(),
-    year_of_study:integer('year_of_study').notNull(),
-});
+export const user_characteristics = pgTable('user_characteristics', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id').notNull()
+      .references(() => usersTable.userid, { onDelete: 'cascade' })
+      .unique(),  // Add unique constraint here
+    dob: date('dob').notNull(),
+    sex: text('sex').notNull(),
+    height: integer('height').notNull(),
+    skin_color: text('skin_color').notNull(),
+    hobby: text('hobby').notNull(),
+    location: text('location').notNull(),
+    program_of_study: text('program_of_study').notNull(),
+    year_of_study: integer('year_of_study').notNull(),
+  });
+  
 
 export type insert_user_characteristics=typeof user_characteristics.$inferInsert;
 export type select_user_characteristics=typeof user_characteristics.$inferSelect;

@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS "user_characteristics" (
 	"hobby" text NOT NULL,
 	"location" text NOT NULL,
 	"program_of_study" text NOT NULL,
-	"year_of_study" integer NOT NULL
+	"year_of_study" integer NOT NULL,
+	CONSTRAINT "user_characteristics_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
