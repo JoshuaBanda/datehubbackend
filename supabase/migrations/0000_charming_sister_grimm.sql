@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS "comments" (
 	"comment_id" serial PRIMARY KEY NOT NULL,
 	"comment" text NOT NULL,
 	"post_id" integer NOT NULL,
-	"user_id" integer NOT NULL
+	"user_id" integer NOT NULL,
+	"createdat" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "inboxparticipants" (

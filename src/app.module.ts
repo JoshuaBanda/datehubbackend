@@ -20,6 +20,7 @@ import { PostLikesModule } from './post-likes/post-likes.module';
 import { UserCharacteristicsModule } from './user_characteristics/user_characteristics.module';
 import { PreferencesModule } from './preferences/preferences.module';
 import { PostTrackerModule } from './post-tracker/post-tracker.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [MessageModule, UsersModule, InboxModule, InboxparticipantsModule, StartconversationModule, EmailModule, OtpModule, UserAunthenticationModule, CloudinaryModule,
@@ -29,7 +30,8 @@ import { PostTrackerModule } from './post-tracker/post-tracker.module';
     PostLikesModule,
     UserCharacteristicsModule,
     PreferencesModule,
-    PostTrackerModule
+    PostTrackerModule,
+    LikesModule
   ],
   controllers: [AppController,StartConversaation],
   providers: [AppService,InboxparticipantsService,InboxService],

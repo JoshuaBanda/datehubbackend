@@ -124,7 +124,7 @@ export class PostService {
   }
 
   // Schedule the cache update to run every minute
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async scheduledCacheUpdate(): Promise<void> {
     await this.updateCache();
   }

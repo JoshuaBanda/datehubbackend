@@ -106,7 +106,8 @@ export const comments=pgTable('comments',{
     post_id:integer('post_id').notNull()
         .references(()=>post.post_id,{onDelete:'cascade'}),
     user_id:integer('user_id').notNull()
-        .references(()=>usersTable.userid,{onDelete:'cascade'})    
+        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    created_at:timestamp('createdat').defaultNow(),
 })
 
 
