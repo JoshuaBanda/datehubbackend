@@ -1,19 +1,150 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { insertPost, selectPost, post, usersTable, selectUsers } from 'src/db/schema';
-import { UploadApiErrorResponse, UploadApiResponse, v2 } from "cloudinary";
-import { eq, sql } from "drizzle-orm";
-import { db } from "src/db";
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { selectPost, post, usersTable, insertPost, selectUsers } from 'src/db/schema';
+import { eq, inArray, not, sql } from 'drizzle-orm';
+import { db } from 'src/db';
+import { PostTracker } from './post-tracker';
+import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 
 @Injectable()
 export class PostService {
+  private postTracker: PostTracker;
+  // User-specific cache for posts
+  private userCaches: Map<number, (selectPost & { username: string; lastname: string; profilepicture: string })[]> =
+    new Map();
+
   constructor() {
     v2.config({
       cloud_name: 'dfahzd3ky',
       api_key: '377379954858251',
       api_secret: 'Cxu4QkxXCmd400-VWttlRZ_w9p8',
     });
+    this.postTracker = new PostTracker();
+  }
+ 
+
+
+  async getPosts(
+    userId: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<(selectPost & { username: string; lastname: string; profilepicture: string })[] | null> {
+    try {
+      // Check if the user has a cached post list
+      if (this.userCaches.has(userId)) {
+        console.log(`Fetching posts from cache for user ${userId}`);
+        const userCache = this.userCaches.get(userId) || [];
+        const filteredCache = userCache.filter(
+          (post) => !this.postTracker.getSentPostIds(userId).includes(post.post_id)
+        );
+
+        if (filteredCache.length > 0) {
+          const offset = (page - 1) * limit;
+          return filteredCache.slice(offset, offset + limit);
+        }
+      }
+
+      // Fetch posts from the database if no suitable cached posts are available
+      const offset = (page - 1) * limit;
+      const results = await db
+        .select()
+        .from(post)
+        .where(not(inArray(post.post_id, this.postTracker.getSentPostIds(userId))))
+        .limit(limit)
+        .offset(offset)
+        .execute();
+
+      if (results.length === 0) {
+        return null;
+      }
+
+      console.log(`Fetching posts from database for user ${userId}`);
+      const postsWithUserDetails = await this.fetchPostsWithUserDetails(results);
+
+      // Cache the fetched posts for the user
+      this.userCaches.set(userId, postsWithUserDetails);
+
+      // Track these posts as sent for the user
+      this.postTracker.markPostsAsSent(userId, results);
+
+      return postsWithUserDetails;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Failed to retrieve posts');
+    }
   }
 
+  private async fetchPostsWithUserDetails(
+    posts: selectPost[]
+  ): Promise<(selectPost & { username: string; lastname: string; profilepicture: string })[]> {
+    return await Promise.all(
+      posts.map(async (post) => {
+        const [user] = await db
+          .select({
+            firstname: usersTable.firstname,
+            lastname: usersTable.lastname,
+            profilepicture: usersTable.profilepicture,
+          })
+          .from(usersTable)
+          .where(eq(usersTable.userid, post.user_id))
+          .execute();
+
+        return {
+          ...post,
+          username: user ? user.firstname : 'anonymous',
+          lastname: user ? user.lastname : '',
+          profilepicture: user ? user.profilepicture : '',
+        };
+      })
+    );
+  }
+
+  // Method to update the cache for all users
+  async updateCache(): Promise<void> {
+    console.log('Updating post caches for all users...');
+
+    try {
+      const allPosts = await db.select().from(post).execute();
+      const postsWithUserDetails = await this.fetchPostsWithUserDetails(allPosts);
+
+      // Update cache for each user individually
+      this.userCaches.forEach((_, userId) => {
+        this.userCaches.set(
+          userId,
+          postsWithUserDetails.filter(
+            (post) => !this.postTracker.getSentPostIds(userId).includes(post.post_id)
+          )
+        );
+      });
+
+      console.log('Post caches updated successfully');
+    } catch (error) {
+      console.error('Failed to update post caches:', error);
+    }
+  }
+
+  // Schedule the cache update to run every minute
+  @Cron(CronExpression.EVERY_MINUTE)
+  async scheduledCacheUpdate(): Promise<void> {
+    await this.updateCache();
+  }
+
+  // Clear the cache for a specific user
+  clearUserCache(userId: number): void {
+    console.log(`Clearing cache for user ${userId}`);
+    this.userCaches.delete(userId);
+  }
+
+  // Clear the caches for all users
+  clearAllCaches(): void {
+    console.log('Clearing caches for all users');
+    this.userCaches.clear();
+  }
+
+
+
+  //the previous implements
+  
 
   async  uploadImage(fileBuffer: Buffer, fileName: string, quality: number): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
@@ -119,96 +250,7 @@ export class PostService {
   }
 
   // Get posts liked by a user
-  async getPostsLikedByUser(userId: selectUsers['userid']): Promise<(selectPost & { username: string, lastname: string, profilepicture: string })[] | null> {
-    try {
-      const results = await db
-        .select({
-          post_id: post.post_id,
-          description: post.description,
-          photo_url: post.photo_url,
-          user_id: post.user_id, // Make sure to include 'user_id' in the select statement
-        })
-        .from(post)
-        .where(
-          sql`EXISTS (
-            SELECT 1
-            FROM likes
-            WHERE likes.user_id = ${userId} AND likes.post_id = ${post.post_id}
-          )`
-        )
-        .execute();
-  
-      // If no posts liked, return null
-      if (results.length === 0) {
-        return null;
-      }
-  
-      // Query for user details (username, lastname, profilepicture) and fallback to defaults if not found
-      const postsWithUserDetails = await Promise.all(results.map(async (post) => {
-        const [user] = await db
-          .select({
-            firstname: usersTable.firstname,
-            lastname: usersTable.lastname,
-            profilepicture: usersTable.profilepicture,
-          })
-          .from(usersTable)
-          .where(eq(usersTable.userid, post.user_id))
-          .execute();
-        
-        return {
-          ...post,
-          username: user ? user.firstname : 'anonymous', // Use firstname for username
-          lastname: user ? user.lastname : '', // Use lastname
-          profilepicture: user ? user.profilepicture : '', // Use profile picture
-        };
-      }));
 
-      return postsWithUserDetails;
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Failed to retrieve liked posts');
-    }
-  }
-
-  // Get all posts
-  async getAllPost(): Promise<(selectPost & { username: string, lastname: string, profilepicture: string })[] | null> {
-    try {
-      const results = await db
-        .select()
-        .from(post)
-        .execute();
-  
-      // If no posts are found, return null
-      if (results.length === 0) {
-        return null;
-      }
-  
-      // Query for user details (username, lastname, profilepicture) and fallback to defaults if not found
-      const postsWithUserDetails = await Promise.all(results.map(async (post) => {
-        const [user] = await db
-          .select({
-            firstname: usersTable.firstname,
-            lastname: usersTable.lastname,
-            profilepicture: usersTable.profilepicture,
-          })
-          .from(usersTable)
-          .where(eq(usersTable.userid, post.user_id))
-          .execute();
-        
-        return {
-          ...post,
-          username: user ? user.firstname : 'anonymous', // Use firstname for username
-          lastname: user ? user.lastname : '', // Use lastname
-          profilepicture: user ? user.profilepicture : '', // Use profile picture
-        };
-      }));
-
-      return postsWithUserDetails;
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Failed to retrieve posts');
-    }
-  }
 
   // Update a post's description
   async updatePostDescription(postId: selectPost['post_id'], newDescription: string): Promise<void> {
@@ -285,8 +327,5 @@ export class PostService {
     }
   }
 
-
-
-
-
 }
+

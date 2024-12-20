@@ -6,7 +6,6 @@ import {
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
-import { timestamp } from 'drizzle-orm/mysql-core';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -27,7 +26,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log('Received an array for userId, taking the first element.');
       userId = userId[0]; // Use the first element if it's an array
     }
-
 
     // Check if the user is already connected
     if (this.connectedUsers.has(userId)) {
@@ -50,6 +48,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(`User ${userId} disconnected`);
     }
   }
+
+  // Handle both messages and posts using a 'type' field to differentiate them
+  @SubscribeMessage('sendMessage')
+  handleSendMessage(@MessageBody() msg: any): void {
+    const { type, content, userId } = msg;
+
+    if (type === 'message') {
+      console.log(`Received message: ${content} from user ${userId}`);
+      // Handle message logic, e.g., store in database, broadcast to clients
+      this.server.emit('message', { content, userId, type, timestamp: new Date().toISOString() });
+    } else if (type === 'post') {
+      console.log(`Received post: ${content} from user ${userId}`);
+      // Handle post logic, e.g., store in database, broadcast to clients
+      this.server.emit('post', { content, userId, type, timestamp: new Date().toISOString() });
+    } else {
+      console.log(`Unknown type: ${type}`);
+    }
+  }
+
+  // Example of refreshing data (already in your existing code)
   @SubscribeMessage('triggerRefresh')
   handleRefresh(@MessageBody() msg: any): void {
     console.log('Refreshing data:', msg);

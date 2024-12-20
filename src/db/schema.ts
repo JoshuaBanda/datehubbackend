@@ -21,6 +21,7 @@ export const messagesTable = pgTable('messages', {
         .references(() => usersTable.userid, { onDelete: 'cascade' }),
     message: text('message'),
     createdat: timestamp('createdat').defaultNow(),
+    status:text('status').notNull()
 }
 );
 
@@ -80,6 +81,7 @@ export const post=pgTable('post',{
     user_id:integer('user_id')
         .notNull()
         .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    created_at: timestamp('createdat').defaultNow(),
 })
 
 export type selectPost=typeof post.$inferSelect;

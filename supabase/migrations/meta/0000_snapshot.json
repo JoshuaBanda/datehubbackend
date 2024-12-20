@@ -1,5 +1,5 @@
 {
-  "id": "66e793b9-e648-427e-acb1-0885db4c1bda",
+  "id": "3b70913a-ee96-4aef-82e4-47e3cda62738",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -246,6 +246,12 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -307,6 +313,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdat": {
+          "name": "createdat",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
       "indexes": {},

@@ -111,22 +111,43 @@ async  getUserByEmail(email: string): Promise<selectUsers | null> {
     email: string,
     password: string
   ): Promise<{ access_token: string }> {
-    const user = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
-      .execute();
-
-    if (user.length === 0 || !(await bcrypt.compare(password, user[0].password))) {
-      throw new InternalServerErrorException('Invalid credentials');
+    try {
+      console.log('Starting authentication process');
+  
+      const user = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.email, email))
+        .execute();
+  
+      console.log('Database query completed:', user);
+  
+      if (user.length === 0) {
+        console.log('User not found');
+        throw new InternalServerErrorException('Invalid credentials');
+      }
+  
+      const isPasswordValid = await bcrypt.compare(password, user[0].password);
+      console.log('Password comparison result:', isPasswordValid);
+  
+      if (!isPasswordValid) {
+        throw new InternalServerErrorException('Invalid credentials');
+      }
+  
+      const result = { sub: user[0].userid, firstname: user[0].firstname };
+      console.log('JWT payload:', result);
+  
+      const token = await this.jwtService.signAsync(result);
+      console.log('JWT token generated:', token);
+  
+      return { access_token: token };
+  
+    } catch (error) {
+      console.error('Error during authentication:', error);
+      throw error;
     }
-
-    const result = { sub: user[0].userid, firstname: user[0].firstname };
-    return {
-      access_token: await this.jwtService.signAsync(result) // Use JwtService here as well
-    };
   }
-
+  
 
 
 async updateActivationStatusById(userId: number, activationStatus: boolean): Promise<void> {

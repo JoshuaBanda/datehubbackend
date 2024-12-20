@@ -27,14 +27,16 @@ CREATE TABLE IF NOT EXISTS "messages" (
 	"inboxid" integer NOT NULL,
 	"userid" integer NOT NULL,
 	"message" text,
-	"createdat" timestamp DEFAULT now()
+	"createdat" timestamp DEFAULT now(),
+	"status" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "post" (
 	"post_id" serial PRIMARY KEY NOT NULL,
 	"description" text NOT NULL,
 	"photo_url" text NOT NULL,
-	"user_id" integer NOT NULL
+	"user_id" integer NOT NULL,
+	"createdat" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "preferences" (

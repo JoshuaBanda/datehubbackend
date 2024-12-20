@@ -13,7 +13,6 @@ import { EmailService } from 'src/email/email.service';
     JwtModule.register({
       global:true,
       secret:jwtConstants.secret,
-      signOptions:{expiresIn:'60s'},
     }),
   ],
   controllers: [UsersController],

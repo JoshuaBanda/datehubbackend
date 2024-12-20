@@ -1,15 +1,48 @@
-import { Controller, Get, Post, Body, Param, Delete, HttpException, HttpStatus, Patch, UseInterceptors, UploadedFile, NotFoundException } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { insertPost, selectPost } from 'src/db/schema';
+import { JwtAuthGuard } from './guard';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Post('create')
+  @UseGuards(JwtAuthGuard) // Apply the guard to protect this route
+  @Get()
+  async getAllPosts(@Req() req): Promise<selectPost[]> {
+    console.log('Fetching random posts');
+
+    // The userId is now available in req.user after the guard verifies the JWT token
+    const userId = req.user?.sub; // Access userId (stored in 'sub' in the token)
+    if (!userId) {
+      throw new Error('User ID is required to fetch posts');
+    }
+
+    const posts = await this.postService.getPosts(userId);
+    if (!posts) {
+      return []; // Return empty array if no posts are found
+    }
+
+    const randomPosts = this.getRandomPosts(posts, 5); // Fetch random posts
+    return randomPosts;
+  }
+
+  private getRandomPosts(posts: selectPost[], count: number): selectPost[] {
+    const shuffled = posts.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+
+
+
+
+
+
+
+
+@Post('create')
 @UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
 async createPost(
   @Body() createPostDto: insertPost,
@@ -53,10 +86,9 @@ async createPost(
     }
   }
 
-  @Get()
-  async getAllPosts(): Promise<selectPost[]> {
-    return await this.postService.getAllPost();
-  }
+
+  
+
 
 
   @Patch(':id/description')
