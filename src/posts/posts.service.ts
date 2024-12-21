@@ -37,13 +37,13 @@ export class PostService {
         const filteredCache = userCache.filter(
           (post) => !this.postTracker.getSentPostIds(userId).includes(post.post_id)
         );
-
+  
         if (filteredCache.length > 0) {
           const offset = (page - 1) * limit;
           return filteredCache.slice(offset, offset + limit);
         }
       }
-
+  
       // Fetch posts from the database if no suitable cached posts are available
       const offset = (page - 1) * limit;
       const results = await db
@@ -53,27 +53,29 @@ export class PostService {
         .limit(limit)
         .offset(offset)
         .execute();
-
+  
       if (results.length === 0) {
+        // Clear the post tracker if no posts are left
+        this.postTracker.clearSentPosts(userId);
         return null;
       }
-
+  
       console.log(`Fetching posts from database for user ${userId}`);
       const postsWithUserDetails = await this.fetchPostsWithUserDetails(results);
-
+  
       // Cache the fetched posts for the user
       this.userCaches.set(userId, postsWithUserDetails);
-
+  
       // Track these posts as sent for the user
       this.postTracker.markPostsAsSent(userId, results);
-
+  
       return postsWithUserDetails;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to retrieve posts');
     }
   }
-
+  
   private async fetchPostsWithUserDetails(
     posts: selectPost[]
   ): Promise<(selectPost & { username: string; lastname: string; profilepicture: string })[]> {
