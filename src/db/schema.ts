@@ -21,7 +21,6 @@ export const messagesTable = pgTable('messages', {
         .references(() => usersTable.userid, { onDelete: 'cascade' }),
     message: text('message'),
     createdat: timestamp('createdat').defaultNow(),
-    status:text('status').notNull()
 }
 );
 

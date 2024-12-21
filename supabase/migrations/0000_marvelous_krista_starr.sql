@@ -28,8 +28,7 @@ CREATE TABLE IF NOT EXISTS "messages" (
 	"inboxid" integer NOT NULL,
 	"userid" integer NOT NULL,
 	"message" text,
-	"createdat" timestamp DEFAULT now(),
-	"status" text NOT NULL
+	"createdat" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "post" (
