@@ -23,55 +23,59 @@ export class PostService {
   }
  
 
-
   async getPosts(
     userId: number,
     page: number = 1,
     limit: number = 10
   ): Promise<(selectPost & { username: string; lastname: string; profilepicture: string })[] | null> {
     try {
-      // Check if the user has a cached post list
-      if (this.userCaches.has(userId)) {
-        console.log(`Fetching posts from cache for user ${userId}`);
-        const userCache = this.userCaches.get(userId) || [];
-        const filteredCache = userCache.filter(
-          (post) => !this.postTracker.getSentPostIds(userId).includes(post.post_id)
-        );
+      const offset = (page - 1) * limit;
   
-        if (filteredCache.length > 0) {
-          const offset = (page - 1) * limit;
-          return filteredCache.slice(offset, offset + limit);
-        }
+      // Retrieve cached posts for the user
+      const cachedPosts = this.userCaches.get(userId) || [];
+      
+      // Filter out posts that have already been sent
+      const unsentCachedPosts = cachedPosts.filter(
+        (post) => !this.postTracker.getSentPostIds(userId).includes(post.post_id)
+      );
+  
+      // If unsent posts are available in the cache, return them
+      if (unsentCachedPosts.length > 0) {
+        console.log(`Returning ${unsentCachedPosts.length} cached posts for user ${userId}`);
+        const paginatedPosts = unsentCachedPosts.slice(offset, offset + limit);
+        this.postTracker.markPostsAsSent(userId, paginatedPosts); // Mark posts as sent
+        return paginatedPosts;
       }
   
-      // Fetch posts from the database if no suitable cached posts are available
-      const offset = (page - 1) * limit;
+      // If no unsent posts are found, fetch new posts from the database
+      console.log(`No unsent cached posts for user ${userId}`);
+      
       const results = await db
         .select()
         .from(post)
-        .where(not(inArray(post.post_id, this.postTracker.getSentPostIds(userId))))
+        .where(not(inArray(post.post_id, this.postTracker.getSentPostIds(userId)))) // Filter out already sent posts
         .limit(limit)
         .offset(offset)
         .execute();
   
       if (results.length === 0) {
-        // Clear the post tracker if no posts are left
-        this.postTracker.clearSentPosts(userId);
-        return null;
+        console.log(`No new posts available for user ${userId}. Clearing tracker.`);
+        this.postTracker.clearSentPosts(userId); // Clear the tracker if no new posts are found
+        return null; // Return null when no new posts are available
       }
   
-      console.log(`Fetching posts from database for user ${userId}`);
+      // Append new posts to the cache and mark them as sent
       const postsWithUserDetails = await this.fetchPostsWithUserDetails(results);
-  
-      // Cache the fetched posts for the user
-      this.userCaches.set(userId, postsWithUserDetails);
-  
-      // Track these posts as sent for the user
+      console.log(`Updating cache and tracker for user ${userId}`);
+      
+      // Append the new posts to the existing cache (avoiding overwriting)
+      const updatedCache = [...cachedPosts, ...postsWithUserDetails];
+      this.userCaches.set(userId, updatedCache);
       this.postTracker.markPostsAsSent(userId, results);
   
       return postsWithUserDetails;
     } catch (error) {
-      console.error(error);
+      console.error(`Error fetching posts for user ${userId}:`, error);
       throw new InternalServerErrorException('Failed to retrieve posts');
     }
   }

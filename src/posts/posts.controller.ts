@@ -25,7 +25,7 @@ export class PostController {
       return []; // Return empty array if no posts are found
     }
 
-    const randomPosts = this.getRandomPosts(posts, 5); // Fetch random posts
+    const randomPosts = this.getRandomPosts(posts, 10);  //fetch post
     return randomPosts;
   }
 
