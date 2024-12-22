@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { insertPost, selectPost } from 'src/db/schema';
 import { JwtAuthGuard } from './guard';
@@ -9,16 +9,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-
-
-
   @UseGuards(JwtAuthGuard) // Apply the guard to protect this route
   @Get()
-  async getAllPosts(
-    @Req() req, 
-    @Query('page') page: number = 1, // Default to page 1 if not provided
-    @Query('limit') limit: number = 10 // Default to 10 if not provided
-  ): Promise<selectPost[]> {
+  async getAllPosts(@Req() req): Promise<selectPost[]> {
     console.log('Fetching random posts');
 
     // The userId is now available in req.user after the guard verifies the JWT token
@@ -27,16 +20,12 @@ export class PostController {
       throw new Error('User ID is required to fetch posts');
     }
 
-    // Adjust for pagination logic (page, limit)
-    const skip = (page - 1) * limit;
-    const posts = await this.postService.getPosts(userId, skip, limit); // Pass skip and limit to your service method
-
-    if (!posts || posts.length === 0) {
+    const posts = await this.postService.getPosts(userId);
+    if (!posts) {
       return []; // Return empty array if no posts are found
     }
 
-    // Use the getRandomPosts method to return random posts from the list
-    const randomPosts = this.getRandomPosts(posts, limit); // You can modify this if needed
+    const randomPosts = this.getRandomPosts(posts, 10);  //fetch post
     return randomPosts;
   }
 
