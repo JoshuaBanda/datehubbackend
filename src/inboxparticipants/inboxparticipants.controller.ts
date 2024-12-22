@@ -27,27 +27,36 @@ export class InboxparticipantsController {
   }
 
 
-
   @Get(':id/chat')
   async getAllUsers(@Param('id') id: string) {
     const userIdCurrent = parseInt(id, 10);
   
-    // Check if the parsed ID is a valid number
+    // Validate userIdCurrent
     if (isNaN(userIdCurrent)) {
-      throw new BadRequestException('Invalid user ID'); // Handle invalid ID
+      throw new BadRequestException('Invalid user ID');
     }
   
-    // Fetching friends of the current user
-    const result = await this.inboxparticipantsService.getFriends(userIdCurrent);
+    // Fetch friends of the current user
+    const friendIds = await this.inboxparticipantsService.getFriends(userIdCurrent);
   
-    // Now result is an array of friendIds, so you can directly pass it
-    const data = result;  // `result` is already an array of numbers (friendIds)
+    // Fetch users from the users table based on friendIds
+    const users = await this.inboxparticipantsService.getUserFromUsersTable(friendIds);
   
-    // Fetch users from the users table based on the friendIds
-    const users = await this.inboxparticipantsService.getUserFromUsersTable(data);
+    // Fetch inbox data for each user
+    const results = await Promise.all(
+      users.map(async ({ userid }) => {
+        const inboxData = await this.inboxparticipantsService.getCurrentInbox(userid, userIdCurrent);
+        return { userid, inboxData };
+      })
+    );
   
-    return users;
+    // Return combined users and results
+    return results.map(({ userid, inboxData }) => {
+      const user = users.find((u) => u.userid === userid);
+      return { ...user, inboxData };
+    });
   }
+  
 
   
 
