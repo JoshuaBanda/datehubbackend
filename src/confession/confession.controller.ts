@@ -34,24 +34,15 @@ export class ConfessionController {
   }
 
   @Post('create')
-  @UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
   async createConfession( // Rename method to createConfession
     @Body() createConfessionDto: insertConfession,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) {
-      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
-    }
-    
     try {
-      // Upload file to Cloudinary
-      const result = await this.confessionService.uploadImage(file.buffer, file.originalname,60);
-      const { public_id: publicId, secure_url: photoUrl } = result;
 
       // Add the photo URL to the confession DTO
       const newConfession = {
         ...createConfessionDto,
-        photo_url: photoUrl,
+        photo_url: 'https://res.cloudinary.com/dfahzd3ky/image/upload/v1734980866/farmsmart/mask.jpg.jpg',
       };
 
       // Insert the confession into the database
@@ -65,6 +56,7 @@ export class ConfessionController {
       console.error('Error creating confession:', error);
       throw new HttpException('Failed to create confession', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  
   }
 
   @Get(':id')
