@@ -21,6 +21,9 @@ import { UserCharacteristicsModule } from './user_characteristics/user_character
 import { PreferencesModule } from './preferences/preferences.module';
 import { PostTrackerModule } from './post-tracker/post-tracker.module';
 import { LikesModule } from './likes/likes.module';
+import { ConfessionModule } from './confession/confession.module';
+import { ConfessionCommentsModule } from './confession-comments/confession-comments.module';
+import { ConfessionLikesModule } from './confession-likes/confession-likes.module';
 
 @Module({
   imports: [MessageModule, UsersModule, InboxModule, InboxparticipantsModule, StartconversationModule, EmailModule, OtpModule, UserAunthenticationModule, CloudinaryModule,
@@ -31,7 +34,10 @@ import { LikesModule } from './likes/likes.module';
     UserCharacteristicsModule,
     PreferencesModule,
     PostTrackerModule,
-    LikesModule
+    LikesModule,
+    ConfessionModule,
+    ConfessionCommentsModule,
+    ConfessionLikesModule
   ],
   controllers: [AppController,StartConversaation],
   providers: [AppService,InboxparticipantsService,InboxService],

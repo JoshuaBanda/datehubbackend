@@ -6,6 +6,28 @@ CREATE TABLE IF NOT EXISTS "comments" (
 	"createdat" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "confession" (
+	"confession_id" serial PRIMARY KEY NOT NULL,
+	"description" text NOT NULL,
+	"photo_url" text NOT NULL,
+	"user_id" integer NOT NULL,
+	"createdat" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "confession_comments" (
+	"confession_comment_id" serial PRIMARY KEY NOT NULL,
+	"confession_comment" text NOT NULL,
+	"confession_id" integer NOT NULL,
+	"user_id" integer NOT NULL,
+	"createdat" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "confession_likes" (
+	"like_id" serial PRIMARY KEY NOT NULL,
+	"confession_id" integer NOT NULL,
+	"user_id" integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "inboxparticipants" (
 	"userid" integer NOT NULL,
 	"currentuser" integer NOT NULL,
@@ -85,6 +107,36 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "comments" ADD CONSTRAINT "comments_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "confession" ADD CONSTRAINT "confession_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "confession_comments" ADD CONSTRAINT "confession_comments_confession_id_confession_confession_id_fk" FOREIGN KEY ("confession_id") REFERENCES "public"."confession"("confession_id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "confession_comments" ADD CONSTRAINT "confession_comments_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "confession_likes" ADD CONSTRAINT "confession_likes_confession_id_confession_confession_id_fk" FOREIGN KEY ("confession_id") REFERENCES "public"."confession"("confession_id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "confession_likes" ADD CONSTRAINT "confession_likes_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

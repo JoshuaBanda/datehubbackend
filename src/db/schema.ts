@@ -150,3 +150,45 @@ export const preferences=pgTable('preferences',{
 
 export type insert_preferences=typeof preferences.$inferInsert;
 export type select_preferences=typeof preferences.$inferSelect;
+
+
+
+export const confession = pgTable('confession', {  // Renamed from post to confession
+    confession_id: serial('confession_id').primaryKey(),  // Renamed from post_id to confession_id
+    description: text('description').notNull(),
+    photo_url: text('photo_url').notNull(),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => usersTable.userid, { onDelete: 'cascade' }),
+    created_at: timestamp('createdat').defaultNow(),
+    
+});
+
+export type selectConfession = typeof confession.$inferSelect;  // Renamed from selectPost to selectConfession
+export type insertConfession = typeof confession.$inferInsert;  // Renamed from insertPost to insertConfession
+
+export const confession_likes = pgTable('confession_likes', {
+    like_id: serial('like_id').primaryKey(),
+    confession_id: integer('confession_id').notNull()  // Renamed from post_id to confession_id
+      .references(() => confession.confession_id, { onDelete: 'cascade' }),  // Updated to reference the confession table
+    user_id: integer('user_id').notNull().references(() => usersTable.userid, { onDelete: 'cascade' })
+  });
+  
+  export type selectConfessionLikes = typeof confession_likes.$inferSelect;
+  export type insertConfessionLikes= typeof confession_likes.$inferInsert;
+  
+  
+  export const confession_comments = pgTable('confession_comments', {
+    confession_comment_id: serial('confession_comment_id').primaryKey(),
+  
+    confession_comment: text('confession_comment').notNull(),
+    confession_id: integer('confession_id').notNull()  // Renamed from post_id to confession_id
+      .references(() => confession.confession_id, { onDelete: 'cascade' }),  // Updated to reference the confession table
+    user_id: integer('user_id').notNull()
+      .references(() => usersTable.userid, { onDelete: 'cascade' }),
+    created_at: timestamp('createdat').defaultNow(),
+  });
+  
+  export type selectconfessionComments = typeof confession_comments.$inferSelect;
+  export type insertconfessionComments = typeof confession_comments.$inferInsert;
+  

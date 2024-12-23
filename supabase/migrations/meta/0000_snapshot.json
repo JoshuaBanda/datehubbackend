@@ -1,5 +1,5 @@
 {
-  "id": "7ec09271-b9a5-456d-8340-08a169d53eee",
+  "id": "dac57a72-34f8-4ef5-b248-816ea51850e7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -58,6 +58,184 @@
         "comments_user_id_users_userid_fk": {
           "name": "comments_user_id_users_userid_fk",
           "tableFrom": "comments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.confession": {
+      "name": "confession",
+      "schema": "",
+      "columns": {
+        "confession_id": {
+          "name": "confession_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "photo_url": {
+          "name": "photo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdat": {
+          "name": "createdat",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "confession_user_id_users_userid_fk": {
+          "name": "confession_user_id_users_userid_fk",
+          "tableFrom": "confession",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.confession_comments": {
+      "name": "confession_comments",
+      "schema": "",
+      "columns": {
+        "confession_comment_id": {
+          "name": "confession_comment_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "confession_comment": {
+          "name": "confession_comment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confession_id": {
+          "name": "confession_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdat": {
+          "name": "createdat",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "confession_comments_confession_id_confession_confession_id_fk": {
+          "name": "confession_comments_confession_id_confession_confession_id_fk",
+          "tableFrom": "confession_comments",
+          "tableTo": "confession",
+          "columnsFrom": [
+            "confession_id"
+          ],
+          "columnsTo": [
+            "confession_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "confession_comments_user_id_users_userid_fk": {
+          "name": "confession_comments_user_id_users_userid_fk",
+          "tableFrom": "confession_comments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.confession_likes": {
+      "name": "confession_likes",
+      "schema": "",
+      "columns": {
+        "like_id": {
+          "name": "like_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "confession_id": {
+          "name": "confession_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "confession_likes_confession_id_confession_confession_id_fk": {
+          "name": "confession_likes_confession_id_confession_confession_id_fk",
+          "tableFrom": "confession_likes",
+          "tableTo": "confession",
+          "columnsFrom": [
+            "confession_id"
+          ],
+          "columnsTo": [
+            "confession_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "confession_likes_user_id_users_userid_fk": {
+          "name": "confession_likes_user_id_users_userid_fk",
+          "tableFrom": "confession_likes",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
