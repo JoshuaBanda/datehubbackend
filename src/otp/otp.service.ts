@@ -60,14 +60,8 @@ export class OtpService {
     this.otpStore.delete(email);
     this.logger.log(`OTP successfully verified for ${email}`);
 
-    // Now issue an access token
-    const result= await this.generateAccessToken(email);
-    if(result){
-      
-   const useractivation=await this.userService.updateActivationStatusByEmail(email,true);
-   return this.userService.getUserByEmail(email);
 
-    }
+    return;
   }
 
   // Generate JWT access token

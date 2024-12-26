@@ -12,7 +12,7 @@ export class EmailService {
       service: 'gmail', // Example with Gmail (change according to your provider)
       auth: {
         user: 'bsc-inf-04-22@unima.ac.mw', // Your email address
-        pass: 'tiongebanda', // Your email password or app password
+        pass: 'cdgp uxya wlqy uift', // Your email password or app password
       },
     });
   }
