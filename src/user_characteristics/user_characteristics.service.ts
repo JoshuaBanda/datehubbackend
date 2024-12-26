@@ -9,17 +9,26 @@ export class UserCharacteristicsService {
   // Create a user characteristic
   async createUserCharacteristics(data: insert_user_characteristics): Promise<select_user_characteristics> {
     try {
+      // Ensure that the year_of_study is either a valid integer or null (not a string 'null')
+      console.log(data);
+      if (data.year_of_study == null || isNaN(data.year_of_study)) {
+        data.year_of_study = 0;  // Set to null if the value is invalid or undefined
+      }
+
+  
+      // Insert data into the database
       const [newUserCharacteristic] = await db
         .insert(user_characteristics)
         .values(data)
         .returning();
-
+  
       return newUserCharacteristic;
     } catch (error) {
       console.error('Error creating user characteristic:', error);
       throw new InternalServerErrorException('Failed to create user characteristics');
     }
   }
+  
 
   // Get user characteristics by user_id
   async getUserCharacteristics(userId: number): Promise<select_user_characteristics | null> {
