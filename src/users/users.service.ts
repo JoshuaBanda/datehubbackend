@@ -72,7 +72,7 @@ async  getUserByEmail(email: string): Promise<selectUsers | null> {
         profilepicture,
         email,
         password: hashedPassword,
-        activationstatus: false, // Set default value for activationstatus (true or false)
+        activationstatus: true, // Set default value for activationstatus (true or false)
       };
   
       // Insert user into the database and get the inserted user back
@@ -84,12 +84,14 @@ async  getUserByEmail(email: string): Promise<selectUsers | null> {
       const user = result[0]; // Extract the user from the result
   
       // Generate a JWT token for the user using JwtService
-      const token = await this.jwtService.signAsync(
-        { userid: user.userid, email: user.email }, // Payload: include necessary info (don't include password)
-        { secret: 'your_jwt_secret_key', expiresIn: '1h' } // Secret key and expiration
-      );
+      //const token = await this.jwtService.signAsync(
+        //{ userid: user.userid, email: user.email }, // Payload: include necessary info (don't include password)
+        //{ secret: 'your_jwt_secret_key' } // Secret key and expiration
+      //);
   
       // Return the user along with the JWT token
+      
+      const data2 = await this.getAuthenticatedUser(email, password);
       return {
         user: {
           userid: user.userid,
@@ -99,7 +101,8 @@ async  getUserByEmail(email: string): Promise<selectUsers | null> {
           profilepicture: user.profilepicture,
           activationstatus:user.activationstatus,
         },
-        access_token: token, // Include the JWT token in the response
+        //access_token: token, // Include the JWT token in the response
+        access_token:data2,
       };
     } catch (error) {
       throw new InternalServerErrorException(error,'Failed to create user');
