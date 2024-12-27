@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { insertMessages, messagesTable, selectMessages } from 'src/db/schema';
 import { db } from 'src/db';
-import { eq } from 'drizzle-orm';
+import { eq, gte } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
@@ -29,6 +29,17 @@ export class MessageService {
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.inboxid, id))
+      .execute();
+  }
+
+  // Fetch messages created after the given timestamp
+  async getMessagesAfter(lastTimestamp: Date): Promise<selectMessages[]> {
+    // Use gte to compare with the Date directly
+    return await db
+      .select()
+      .from(messagesTable)
+      .where(gte(messagesTable.createdat, lastTimestamp))  // Pass Date directly
+      .orderBy(messagesTable.createdat) // Ensure messages are ordered by timestamp
       .execute();
   }
 }
