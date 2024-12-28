@@ -14,16 +14,19 @@ export class MessageService {
         .insert(messagesTable)
         .values(data)
         .returning();
-
+  
       // Emit the 'message.added' event with the new message
       this.eventEmitter.emit('message.added', message);
-
+  
+      console.log('Message added:', message);
+  
       return message;
     } catch (error) {
+      console.error('Error in addMessage:', error);  // Log the error to get more insight
       throw new InternalServerErrorException('Failed to send message');
     }
   }
-
+  
   async getMessagesByInboxId(id: number): Promise<selectMessages[] | null> {
     return await db
       .select()

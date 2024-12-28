@@ -16,8 +16,10 @@ export class MessageController {
   @Post('send')
   async createMessage(@Body() CreateMessageDto: insertMessages) {
     try {
+      console.log('j');
       // Add the message to the database
       const result = await this.messageService.addMessage(CreateMessageDto);
+      
 
       // Emit the 'message.added' event after adding a message
       this.eventEmitter.emit('message.added', result);
