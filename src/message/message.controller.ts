@@ -39,7 +39,6 @@ getAllMessageEvents(): Observable<any> {
   return new Observable((observer) => {
     const intervalId = setInterval(async () => {
       try {
-        // Fetch only new messages created after the last timestamp
         console.log(`Fetching messages after: ${lastTimestamp.toISOString()}`);
         const newMessages = await this.messageService.getMessagesAfter(lastTimestamp);
 
@@ -51,14 +50,10 @@ getAllMessageEvents(): Observable<any> {
           const latestTimestamp = new Date(latestMessage.createdat);
           console.log(`Latest message timestamp: ${latestTimestamp.toISOString()}`);
 
-          // Update lastTimestamp
-          if (latestTimestamp > lastTimestamp) {
-            lastTimestamp = new Date(latestTimestamp.getTime() + 1); // Add 1 ms margin to avoid duplicates
-            console.log(`Sending new messages to client: ${JSON.stringify(newMessages)}`);
-            observer.next({ data: newMessages });
-          } else {
-            console.log(`No new messages to send.`);
-          }
+          // Add a margin to the timestamp to ensure that we don't miss any messages
+          lastTimestamp = new Date(latestTimestamp.getTime() + 1); // Add 1 ms margin
+          console.log(`Sending new messages to client: ${JSON.stringify(newMessages)}`);
+          observer.next({ data: newMessages });
         } else {
           console.log(`No new messages to fetch.`);
         }
