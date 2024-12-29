@@ -32,34 +32,47 @@ export class MessageController {
 
   // SSE Endpoint for streaming all messages from all inboxes
   @Sse('events')
-  getAllMessageEvents(): Observable<any> {
-    let lastTimestamp = new Date(0); // Start with the epoch time to get all messages initially
+getAllMessageEvents(): Observable<any> {
+  let lastTimestamp = new Date(0); // Start with the epoch time to get all messages initially
+  console.log(`Starting SSE stream with initial timestamp: ${lastTimestamp.toISOString()}`);
 
-    return new Observable((observer) => {
-      const intervalId = setInterval(async () => {
-        try {
-          // Fetch only new messages created after the last timestamp
-          const newMessages = await this.messageService.getMessagesAfter(lastTimestamp);
+  return new Observable((observer) => {
+    const intervalId = setInterval(async () => {
+      try {
+        // Fetch only new messages created after the last timestamp
+        console.log(`Fetching messages after: ${lastTimestamp.toISOString()}`);
+        const newMessages = await this.messageService.getMessagesAfter(lastTimestamp);
 
-          // Only send new messages if any were found
-          if (newMessages && newMessages.length > 0) {
-            // Update the last timestamp to the most recent message's createdAt
-            const latestTimestamp = newMessages[newMessages.length - 1].createdat;
-            lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
+        if (newMessages && newMessages.length > 0) {
+          console.log(`Fetched ${newMessages.length} new message(s)`);
 
-            // Send the new messages to the client
+          // Get the most recent message's timestamp
+          const latestMessage = newMessages[newMessages.length - 1];
+          const latestTimestamp = new Date(latestMessage.createdat);
+          console.log(`Latest message timestamp: ${latestTimestamp.toISOString()}`);
+
+          // Update lastTimestamp
+          if (latestTimestamp > lastTimestamp) {
+            lastTimestamp = new Date(latestTimestamp.getTime() + 1); // Add 1 ms margin to avoid duplicates
+            console.log(`Sending new messages to client: ${JSON.stringify(newMessages)}`);
             observer.next({ data: newMessages });
+          } else {
+            console.log(`No new messages to send.`);
           }
-        } catch (error) {
-          observer.error(error);
+        } else {
+          console.log(`No new messages to fetch.`);
         }
-      }, 1000); // Send updates every second, but only for new messages
+      } catch (error) {
+        console.error(`Error fetching messages:`, error);
+        observer.error(error);
+      }
+    }, 1000); // Every second
 
-      return () => {
-        clearInterval(intervalId);
-      };
-    });
-  }
+    return () => {
+      clearInterval(intervalId);
+    };
+  });
+}
 
   // Endpoint to retrieve all messages by inbox ID
   @Get(':id/messages')
