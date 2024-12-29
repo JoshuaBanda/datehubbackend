@@ -53,7 +53,7 @@ export class MessageController {
         } catch (error) {
           observer.error(error);
         }
-      }, 1000); // Send updates every second, but only for new messages
+      }, 5000); // Send updates every second, but only for new messages
 
       return () => {
         clearInterval(intervalId);
