@@ -54,7 +54,7 @@ async createPost(
   
   try {
     // Upload file to Cloudinary
-    const result = await this.postService.uploadImage(file.buffer, file.originalname,60);
+    const result = await this.postService.uploadImage(file.buffer, file.originalname,90);
     const { public_id: publicId, secure_url: photoUrl } = result;
 
     // Add the photo URL to the post DTO
