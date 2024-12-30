@@ -34,15 +34,23 @@ export class MessageService {
       .where(eq(messagesTable.inboxid, id))
       .execute();
   }
-// Fetch messages created after the given timestamp
-async getMessagesAfter(lastTimestamp: Date): Promise<selectMessages[]> {
-  // Use gt (greater than) to exclude the message that has the same createdat timestamp
-  return await db
-    .select()
-    .from(messagesTable)
-    .where(gt(messagesTable.createdat, lastTimestamp))  // Exclude messages equal to the lastTimestamp
-    .orderBy(messagesTable.createdat) // Ensure messages are ordered by timestamp
-    .execute();
-}
 
+  // Fetch messages created after the given timestamp
+  async getMessagesAfter(lastTimestamp: Date): Promise<selectMessages[]> {
+    try {
+      // Query the database for messages that have a 'createdAt' timestamp greater than the lastTimestamp
+      const messages = await db
+        .select()
+        .from(messagesTable)
+        .where(gt(messagesTable.createdat, lastTimestamp))  // Exclude messages equal to lastTimestamp
+        .orderBy(messagesTable.createdat) // Ensure messages are ordered by timestamp in ascending order
+        .execute();
+  
+      return messages;  // Return the result
+    } catch (error) {
+      console.error('Error fetching messages after timestamp:', error);
+      throw new Error('Failed to fetch messages after the specified timestamp');
+    }
+  }
+  
 }
