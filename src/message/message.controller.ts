@@ -30,36 +30,36 @@ export class MessageController {
     }
   }
 
-  // SSE Endpoint for streaming all messages from all inboxes
-  @Sse('events')
-  getAllMessageEvents(): Observable<any> {
-    let lastTimestamp = new Date(0); // Start with the epoch time to get all messages initially
+// SSE Endpoint for streaming all messages from all inboxes
+@Sse('event')
+getAllMessageEvents(): Observable<any> {
+  let lastTimestamp = new Date(0); // Start with the epoch time to get all messages initially
 
-    return new Observable((observer) => {
-      const intervalId = setInterval(async () => {
-        try {
-          // Fetch only new messages created after the last timestamp
-          const newMessages = await this.messageService.getMessagesAfter(lastTimestamp);
+  return new Observable((observer) => {
+    const intervalId = setInterval(async () => {
+      try {
+        // Fetch only new messages created after the last timestamp
+        const newMessages = await this.messageService.getMessagesAfter(lastTimestamp);
 
-          // Only send new messages if any were found
-          if (newMessages && newMessages.length > 0) {
-            // Update the last timestamp to the most recent message's createdAt
-            const latestTimestamp = newMessages[newMessages.length - 1].createdat;
-            lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
+        // Only send new messages if any were found
+        if (newMessages && newMessages.length > 0) {
+          // Update the last timestamp to the most recent message's createdAt
+          const latestTimestamp = newMessages[newMessages.length - 1].createdat;
+          lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
 
-            // Send the new messages to the client
-            observer.next({ data: newMessages });
-          }
-        } catch (error) {
-          observer.error(error);
+          // Send the new messages to the client
+          observer.next({ data: newMessages });
         }
-      }, 5000); // Send updates every second, but only for new messages
+      } catch (error) {
+        observer.error(error);
+      }
+    }, 5000); // Send updates every second, but only for new messages
 
-      return () => {
-        clearInterval(intervalId);
-      };
-    });
-  }
+    return () => {
+      clearInterval(intervalId);
+    };
+  });
+}
 
   // Endpoint to retrieve all messages by inbox ID
   @Get(':id/messages')
