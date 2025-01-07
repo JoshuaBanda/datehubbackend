@@ -9,7 +9,9 @@ import {
   Request,
   HttpException,
   HttpStatus,
-  Put
+  Put,
+  Req,
+  Query
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { selectUsers, usersTable } from 'src/db/schema';
@@ -20,6 +22,7 @@ import { OtpService } from 'src/otp/otp.service';
 import { FirstNameDto } from './dto/updateFirstName.dto';
 import { lastNameDto } from './dto/updateLastName.dto';
 import { profilePictureNameDto } from './dto/updateProfilePicture.dto';
+import { JwtAuthGuard } from 'src/posts/guard';
 
 // Controller to manage both OTP and user-related operations
 @Controller('users')
@@ -33,6 +36,21 @@ export class UsersController {
   @Get('allusers')
   async getAllUsers(): Promise<selectUsers[]> {
     return await this.usersService.getAllUsers();
+  }
+
+
+  @UseGuards(JwtAuthGuard) // Apply the guard to protect this route
+  @Get('test')
+  async getPreferredUsers(
+    @Req() req,
+    @Query('page') page: number = 1,  // Default to page 1 if not provided
+    @Query('pageSize') pageSize: number = 10, // Default to 10 items per page
+    @Query('minSimilarityScore') minSimilarityScore: number = 1, // Minimum similarity score
+  ): Promise<any[]> {
+    const userId = req.user?.sub; // Access userId (stored in 'sub' in the token)
+    
+    // Call the service with the pagination parameters
+    return await this.usersService.getPreferredUsers(userId, page, pageSize, minSimilarityScore);
   }
 
   // Get a user by ID

@@ -138,7 +138,7 @@ export const preferences=pgTable('preferences',{
     id:serial('id').primaryKey(),
     user_id:integer('user_id').notNull()
         .references(()=>usersTable.userid,{onDelete:'cascade'}),
-    preferred_dob:date('dob').notNull(),
+    preferred_age:text('age').notNull(),
     preferred_sex:text('sex').notNull(),
     preferred_height:integer('height').notNull(),
     preferred_skin_color:text('skin_color').notNull(),
