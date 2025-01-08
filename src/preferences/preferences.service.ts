@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 export class PreferencesService {
   // Create a preference
   async createPreference(data: insert_preferences): Promise<select_preferences> {
+    console.log(data);
     try {
       const [newPreference] = await db
         .insert(preferences)
