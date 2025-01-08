@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS "post" (
 CREATE TABLE IF NOT EXISTS "preferences" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"dob" date NOT NULL,
+	"age" text NOT NULL,
 	"sex" text NOT NULL,
 	"height" integer NOT NULL,
 	"skin_color" text NOT NULL,

@@ -1,5 +1,5 @@
 {
-  "id": "dfd8f043-8029-4a5a-b6f2-0bb2fc97f4be",
+  "id": "d1b93b2c-6475-46c3-b225-d266619dae7c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -536,9 +536,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "dob": {
-          "name": "dob",
-          "type": "date",
+        "age": {
+          "name": "age",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
