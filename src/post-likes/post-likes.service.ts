@@ -9,6 +9,7 @@ export class LikesService {
   async addLike(postId: number, userId: number): Promise<any> {
     try {
       // Check if the user has already liked the post
+      
       const existingLike = await db
         .select()
         .from(likes)
@@ -16,10 +17,13 @@ export class LikesService {
         .execute();
 
       if (existingLike.length > 0) {
+        console.log("like exist");
         throw new ConflictException('User has already liked this post');
       }
 
       // Insert the like record into the database
+
+      console.log("liked post");
       const [newLike] = await db
         .insert(likes)
         .values({

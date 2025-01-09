@@ -39,14 +39,14 @@ export class ConfessionService { // Rename class to ConfessionService
   
       // If unsent confessions are available in the cache, return them
       if (unsentCachedConfessions.length > 0) {
-        console.log(`Returning ${unsentCachedConfessions.length} cached confessions for user ${userId}`);
+        //console.log(`Returning ${unsentCachedConfessions.length} cached confessions for user ${userId}`);
         const paginatedConfessions = unsentCachedConfessions.slice(offset, offset + limit);
         this.confessionTracker.markConfessionsAsSent(userId, paginatedConfessions); // Mark confessions as sent
         return paginatedConfessions;
       }
   
       // If no unsent confessions are found, fetch new confessions from the database
-      console.log(`No unsent cached confessions for user ${userId}`);
+      //console.log(`No unsent cached confessions for user ${userId}`);
       
       const results = await db
         .select()
@@ -57,14 +57,14 @@ export class ConfessionService { // Rename class to ConfessionService
         .execute();
   
       if (results.length === 0) {
-        console.log(`No new confessions available for user ${userId}. Clearing tracker.`);
+        //console.log(`No new confessions available for user ${userId}. Clearing tracker.`);
         this.confessionTracker.clearSentConfessions(userId); // Clear the tracker if no new confessions are found
         return null; // Return null when no new confessions are available
       }
   
       // Append new confessions to the cache and mark them as sent
       const confessionsWithUserDetails = await this.fetchConfessionsWithUserDetails(results);
-      console.log(`Updating cache and tracker for user ${userId}`);
+      //console.log(`Updating cache and tracker for user ${userId}`);
       
       // Append the new confessions to the existing cache
       const updatedCache = [...cachedConfessions, ...confessionsWithUserDetails];
@@ -73,7 +73,7 @@ export class ConfessionService { // Rename class to ConfessionService
   
       return confessionsWithUserDetails;
     } catch (error) {
-      console.error(`Error fetching confessions for user ${userId}:`, error);
+      //console.error(`Error fetching confessions for user ${userId}:`, error);
       throw new InternalServerErrorException('Failed to retrieve confessions');
     }
   }
@@ -173,19 +173,19 @@ export class ConfessionService { // Rename class to ConfessionService
 
   // Clear the cache for a specific user
   clearUserCache(userId: number): void {
-    console.log(`Clearing cache for user ${userId}`);
+    //console.log(`Clearing cache for user ${userId}`);
     this.userCaches.delete(userId);
   }
 
   // Clear the caches for all users
   clearAllCaches(): void {
-    console.log('Clearing caches for all users');
+    //console.log('Clearing caches for all users');
     this.userCaches.clear();
   }
 
   // Method to update the cache for all users
   async updateCache(): Promise<void> {
-    console.log('Updating confession caches for all users...');
+    //console.log('Updating confession caches for all users...');
 
     try {
       const allConfessions = await db.select().from(confession).execute();
@@ -201,9 +201,9 @@ export class ConfessionService { // Rename class to ConfessionService
         );
       });
 
-      console.log('Confession caches updated successfully');
+      //console.log('Confession caches updated successfully');
     } catch (error) {
-      console.error('Failed to update confession caches:', error);
+      //console.error('Failed to update confession caches:', error);
     }
   }
 
@@ -228,10 +228,10 @@ export class ConfessionService { // Rename class to ConfessionService
         },
         (error, result) => {
           if (error) {
-            console.error('Cloudinary upload error:', error);
+            //console.error('Cloudinary upload error:', error);
             return reject(error);
           }
-          console.log('Cloudinary upload result:', result); // Log the result
+          //console.log('Cloudinary upload result:', result); // Log the result
           resolve(result);
         }
       );
@@ -245,10 +245,10 @@ export class ConfessionService { // Rename class to ConfessionService
     return new Promise((resolve, reject) => {
         v2.uploader.destroy(publicId, { invalidate: true }, (error, result) => {
             if (error) {
-                console.error('Cloudinary delete error:', error); // Log detailed error
+               // console.error('Cloudinary delete error:', error); // Log detailed error
                 return reject(error);
             }
-            console.log('Cloudinary delete result:', result);
+            //console.log('Cloudinary delete result:', result);
             resolve(result);
         });
     });
@@ -260,7 +260,7 @@ export class ConfessionService { // Rename class to ConfessionService
       if (!email || !profilepicture) {
         throw new Error('Invalid input data');
       }
-      console.log('chec', email, profilepicture);
+      //console.log('chec', email, profilepicture);
 
       // Perform the update operation
       const result = await db
@@ -274,7 +274,7 @@ export class ConfessionService { // Rename class to ConfessionService
 
       return { message: 'Updated successfully', updatedRows: result.count };
     } catch (error) {
-      console.error('Error updating :', error);
+      //console.error('Error updating :', error);
       throw new Error('Failed to update. Please try again later.');
     }
   }

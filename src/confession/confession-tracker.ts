@@ -15,16 +15,16 @@ export class ConfessionTracker {  // Renamed class to ConfessionTracker
       }
       const userConfessions = this.userSentConfessions.get(userId);
       confessions.forEach((confession) => userConfessions.add(confession.confession_id));  // Renamed to confession_id
-      console.log(`Marking confessions as sent for user ${userId}: ${Array.from(userConfessions)}`);
+      //console.log(`Marking confessions as sent for user ${userId}: ${Array.from(userConfessions)}`);
     }
   
     clearSentConfessions(userId: number): void {  // Renamed to clearSentConfessions
-      console.log(`Clearing sent confession IDs for user ${userId}`);
+      //console.log(`Clearing sent confession IDs for user ${userId}`);
       this.userSentConfessions.delete(userId);
     }
   
     clearAllSentConfessions(): void {  // Renamed to clearAllSentConfessions
-      console.log('Clearing sent confession IDs for all users');
+      //console.log('Clearing sent confession IDs for all users');
       this.userSentConfessions.clear();
     }
   }

@@ -12,7 +12,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard) // Apply the guard to protect this route
   @Get()
   async getAllPosts(@Req() req): Promise<selectPost[]> {
-    console.log('Fetching random posts');
+    //console.log('Fetching random posts');
 
     // The userId is now available in req.user after the guard verifies the JWT token
     const userId = req.user?.sub; // Access userId (stored in 'sub' in the token)
@@ -71,7 +71,7 @@ async createPost(
       post: createdPost,
     };
   } catch (error) {
-    console.error('Error creating post:', error);
+    //console.error('Error creating post:', error);
     throw new HttpException('Failed to create post', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
