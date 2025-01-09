@@ -11,7 +11,7 @@ class UserPreferenceService {
       try {
         const cachedPreference = this.userPreferencesCache.get(userId);
         if (cachedPreference) {
-          console.log(`Returning cached preference for user ${userId}`);
+         // console.log(`Returning cached preference for user ${userId}`);
           return cachedPreference;
         }
   
@@ -26,11 +26,11 @@ class UserPreferenceService {
           const userPref = preference[0];
           // Store in the cache
           this.userPreferencesCache.set(userId, userPref);
-          console.log(`Caching preference for user ${userId}`);
+          //console.log(`Caching preference for user ${userId}`);
           return userPref;
         }
   
-        console.log(`No preference found for user ${userId}`);
+        //console.log(`No preference found for user ${userId}`);
         return null; // Return null if no preferences are found
       } catch (error) {
         console.error(`Error fetching preference for user ${userId}:`, error);

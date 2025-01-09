@@ -41,14 +41,14 @@ export class PostService {
   
       // If unsent posts are available in the cache, return them
       if (unsentCachedPosts.length > 0) {
-        console.log(`Returning ${unsentCachedPosts.length} cached posts for user ${userId}`);
+        //console.log(`Returning ${unsentCachedPosts.length} cached posts for user ${userId}`);
         const paginatedPosts = unsentCachedPosts.slice(offset, offset + limit);
         this.postTracker.markPostsAsSent(userId, paginatedPosts); // Mark posts as sent
         return paginatedPosts;
       }
   
       // If no unsent posts are found, fetch new posts from the database
-      console.log(`No unsent cached posts for user ${userId}`);
+      //console.log(`No unsent cached posts for user ${userId}`);
       
       const results = await db
         .select()
@@ -59,14 +59,14 @@ export class PostService {
         .execute();
   
       if (results.length === 0) {
-        console.log(`No new posts available for user ${userId}. Clearing tracker.`);
+        //console.log(`No new posts available for user ${userId}. Clearing tracker.`);
         this.postTracker.clearSentPosts(userId); // Clear the tracker if no new posts are found
         return null; // Return null when no new posts are available
       }
   
       // Append new posts to the cache and mark them as sent
       const postsWithUserDetails = await this.fetchPostsWithUserDetails(results);
-      console.log(`Updating cache and tracker for user ${userId}`);
+      //console.log(`Updating cache and tracker for user ${userId}`);
       
       // Append the new posts to the existing cache (avoiding overwriting)
       const updatedCache = [...cachedPosts, ...postsWithUserDetails];
@@ -107,7 +107,7 @@ export class PostService {
 
   // Method to update the cache for all users
   async updateCache(): Promise<void> {
-    console.log('Updating post caches for all users...');
+    //console.log('Updating post caches for all users...');
 
     try {
       const allPosts = await db.select().from(post).execute();
@@ -123,7 +123,7 @@ export class PostService {
         );
       });
 
-      console.log('Post caches updated successfully');
+      //console.log('Post caches updated successfully');
     } catch (error) {
       console.error('Failed to update post caches:', error);
     }
@@ -137,13 +137,13 @@ export class PostService {
 
   // Clear the cache for a specific user
   clearUserCache(userId: number): void {
-    console.log(`Clearing cache for user ${userId}`);
+    //console.log(`Clearing cache for user ${userId}`);
     this.userCaches.delete(userId);
   }
 
   // Clear the caches for all users
   clearAllCaches(): void {
-    console.log('Clearing caches for all users');
+    //console.log('Clearing caches for all users');
     this.userCaches.clear();
   }
 
@@ -169,7 +169,7 @@ export class PostService {
             console.error('Cloudinary upload error:', error);
             return reject(error);
           }
-          console.log('Cloudinary upload result:', result); // Log the result
+          //console.log('Cloudinary upload result:', result); // Log the result
           resolve(result);
         }
       );
@@ -302,7 +302,7 @@ export class PostService {
                 console.error('Cloudinary delete error:', error); // Log detailed error
                 return reject(error);
             }
-            console.log('Cloudinary delete result:', result);
+            //console.log('Cloudinary delete result:', result);
             resolve(result);
         });
     });
@@ -314,7 +314,7 @@ export class PostService {
       if (!email || !profilepicture) {
         throw new Error('Invalid input data');
       }
-      console.log('chec', email, profilepicture);
+      //console.log('chec', email, profilepicture);
 
       // Perform the update operation
       const result = await db
