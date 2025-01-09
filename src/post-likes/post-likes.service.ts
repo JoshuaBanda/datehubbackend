@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
 import { db } from 'src/db';
-import { likes, selectLikes } from 'src/db/schema';
+import { likes, selectLikes } from 'src/db/schema';  // Assuming selectLikes is a type, not a function
 import { eq } from 'drizzle-orm';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class LikesService {
       const existingLike = await db
         .select()
         .from(likes)
-        .where(eq(likes.post_id, postId))
+        .where(eq(likes.post_id, postId) && eq(likes.user_id, userId)) // Also check for the user_id
         .execute();
 
       if (existingLike.length > 0) {
@@ -62,6 +62,23 @@ export class LikesService {
       }
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete like');
+    }
+  }
+
+  // Check if a user has liked a post
+  async hasUserLikedPost(postId: number, userId: number): Promise<boolean> {
+    try {
+      // Check if the like exists for the given post_id and user_id
+      const result = await db
+        .select()
+        .from(likes)
+        .where(eq(likes.post_id, postId) && eq(likes.user_id, userId))
+        .execute();
+
+      // If result.length > 0, it means the user has liked the post
+      return result.length > 0;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to check like status');
     }
   }
 }

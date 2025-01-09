@@ -35,4 +35,15 @@ export class PostLikesController {
       throw new HttpException('Failed to remove like', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  // **New Endpoint**: Check if a user has liked a post
+  @Get('has-liked/:postId/:userId')
+  async isUserLikedPost(@Param('postId') postId: number, @Param('userId') userId: number): Promise<boolean> {
+    try {
+      const isLiked = await this.postLikesService.hasUserLikedPost(postId, userId);
+      return isLiked;
+    } catch (error) {
+      throw new HttpException('Failed to check if user liked post', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
