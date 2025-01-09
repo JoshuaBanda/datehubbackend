@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
 import { db } from 'src/db';
 import { likes, selectLikes } from 'src/db/schema';
 import { eq } from 'drizzle-orm';
@@ -8,6 +8,17 @@ export class LikesService {
   // Add a like to a post
   async addLike(postId: number, userId: number): Promise<any> {
     try {
+      // Check if the user has already liked the post
+      const existingLike = await db
+        .select()
+        .from(likes)
+        .where(eq(likes.post_id, postId))
+        .execute();
+
+      if (existingLike.length > 0) {
+        throw new ConflictException('User has already liked this post');
+      }
+
       // Insert the like record into the database
       const [newLike] = await db
         .insert(likes)
@@ -43,7 +54,7 @@ export class LikesService {
     try {
       const result = await db
         .delete(likes) // Specify the 'likes' table
-        .where(eq(likes.post_id, postId)) // Add condition for post_id
+        .where(eq(likes.post_id, postId) && eq(likes.user_id, userId)) // Combine the conditions using `&&`
         .execute();
 
       if (result.count === 0) {
