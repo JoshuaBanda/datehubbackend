@@ -15,7 +15,7 @@ export class LikesService {
         .from(likes)
         .where(eq(likes.post_id, postId) && eq(likes.user_id, userId)) // Also check for the user_id
         .execute();
-
+        console.log('checking exist for postid ',postId,' and userid ',userId,' existlike:',existingLike);
       if (existingLike.length > 0) {
         console.log("like exist");
         throw new ConflictException('User has already liked this post');
