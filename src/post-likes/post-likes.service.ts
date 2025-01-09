@@ -1,28 +1,27 @@
 import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
 import { db } from 'src/db';
 import { likes, selectLikes } from 'src/db/schema';  // Assuming selectLikes is a type, not a function
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 @Injectable()
 export class LikesService {
   // Add a like to a post
-  async addLike(postId: number, userId: number): Promise<any> {
-    try {
-      // Check if the user has already liked the post
+  async addLike(postId: number, userId: number): Promise<any> { try {
+    // Perform the select query to check if a like exists for the given postId and userId
+    const [existingLike] = await db
+      .select()
+      .from(likes)
+      .where(
+        sql`${likes.post_id} = ${postId} AND ${likes.user_id} = ${userId}`
+      )
+      .execute();
+
+    if (existingLike) {
+      console.log("Like exists for this post and user");
+      return true; // User has already liked this post
+    } else {
+      console.log("No like exists for this post and user");
       
-      const existingLike = await db
-        .select()
-        .from(likes)
-        .where(eq(likes.post_id, postId) && eq(likes.user_id, userId)) // Also check for the user_id
-        .execute();
-        console.log('checking exist for postid ',postId,' and userid ',userId,' existlike:',existingLike);
-      if (existingLike.length > 0) {
-        console.log("like exist");
-        throw new ConflictException('User has already liked this post');
-      }
-
-      // Insert the like record into the database
-
       console.log("liked post");
       const [newLike] = await db
         .insert(likes)
@@ -33,9 +32,11 @@ export class LikesService {
         .returning(); // This will return the inserted like
 
       return newLike;
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to add like');
     }
+  } catch (error) {
+    console.error("Error checking like for the post:", error);
+    throw new InternalServerErrorException("Failed to check like for the post");
+  }
   }
 
   // Get all likes for a post
