@@ -92,7 +92,7 @@ export class UsersController {
   
   
   // Endpoint to create a new user (Registration)
-  @Post('createuser')
+  @Post('create-user')
   async createUser(
     @Body() createUserDtotwo: { firstname: string; lastname: string; profilepicture: string; email: string; password: string }
   ): Promise<selectUsers> {
@@ -107,7 +107,7 @@ export class UsersController {
   }
 
   // Endpoint to authenticate a user (Login)
-  @Post('login')
+  @Post('logi-n')
   async login(@Body() LoginDto: { email: string; password: string }) {
     console.log('Login attempt for:', LoginDto.email);
     const { email, password } = LoginDto;
