@@ -77,7 +77,7 @@ async addLike(confessionId: number, userId: number): Promise<any> { try {
       const result = await db
         .select()
         .from(confession_likes)
-        .where(eq(confession_likes.confession_id, confessionId) && eq(likes.user_id, userId))
+        .where(eq(confession_likes.confession_id, confessionId) && eq(confession_likes.user_id, userId))
         .execute();
 
       // If result.length > 0, it means the user has liked the confession
