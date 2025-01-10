@@ -36,4 +36,15 @@ export class ConfessionLikesController {  // Renamed controller to ConfessionLik
       throw new HttpException('Failed to remove like', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('has-liked/:confessionId/:userId')
+  async isUserLikedPost(@Param('confessionId') confessionId: number, @Param('userId') userId: number): Promise<boolean> {
+    try {
+      const isLiked = await this.confessionLikesService.hasUserLikedConfession(confessionId, userId);
+      return isLiked;
+    } catch (error) {
+      throw new HttpException('Failed to check if user liked confession', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }

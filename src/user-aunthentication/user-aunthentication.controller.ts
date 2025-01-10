@@ -15,6 +15,7 @@ export class UserAunthenticationController {
   @Put('update-password')
   async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
     try {
+      console.log(updatePasswordDto);
       // Call the updateUserPassword method from UserAunthenticationService
       const result = await this.userAunthenticationService.updateUserPassword(
         updatePasswordDto.email,

@@ -107,7 +107,7 @@ export class UsersController {
   }
 
   // Endpoint to authenticate a user (Login)
-  @Post('logi-n')
+  @Post('login')
   async login(@Body() LoginDto: { email: string; password: string }) {
     console.log('Login attempt for:', LoginDto.email);
     const { email, password } = LoginDto;
