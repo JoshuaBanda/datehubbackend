@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Req, Sse, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { insertPost, selectPost } from 'src/db/schema';
 import { JwtAuthGuard } from './guard';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Observable } from 'rxjs';
 
 @Controller('post')
 export class PostController {
@@ -127,5 +128,57 @@ async createPost(
     // Return the posts with username
     return posts;
   }
+
+
+
+
+
+  @Sse('event')
+    getAllPostsEvents(): Observable<any> {
+      let lastTimestamp = new Date(0); // Start with the epoch time to get all post initially
+      let lastEmittedPostsIds: Set<string> = new Set(); // Track already emitted post IDs to avoid duplicates
+    
+      return new Observable((observer) => {
+        const intervalId = setInterval(async () => {
+          try {
+            // Fetch only new post created after the last timestamp
+            const newPosts = await this.postService.getPostAfter(lastTimestamp);
+    
+            // Only send new post if any were found
+            if (newPosts && newPosts.length > 0) {
+              // Filter out post that have already been emitted using a unique identifier (e.g., post ID or timestamp)
+              const uniquePosts = newPosts.filter((posts) => {
+                const postId = posts.created_at.toISOString(); // Convert Date to string using toISOString()
+                return !lastEmittedPostsIds.has(postId);
+              });
+    
+              if (uniquePosts.length > 0) {
+                // Update the last timestamp to the most recent post's createdAt
+                const latestTimestamp = newPosts[newPosts.length - 1].created_at;
+                lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
+    
+                // Emit new posts and track their post IDs to avoid re-emission
+                uniquePosts.forEach((posts) => {
+                  const postId = posts.created_at.toISOString(); // Convert Date to string
+                  lastEmittedPostsIds.add(postId);  // Add the post's timestamp (as string) to the set
+                });
+    
+                // Send the new posts to the client
+                observer.next({ data: uniquePosts });
+              }
+            }
+          } catch (error) {
+            observer.error(error);
+          }
+        }, 5000); // Send updates every 5 seconds, but only for new posts
+    
+        return () => {
+          clearInterval(intervalId);
+        };
+      });
+    }
+    
+  
+  
 
 }

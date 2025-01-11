@@ -73,7 +73,7 @@ async addLike(confessionId: number, userId: number): Promise<any> { try {
   // Check if a user has liked a confession
   async hasUserLikedConfession(confessionId: number, userId: number): Promise<boolean> {
     try {
-      // Check if the like exists for the given confession_id and user_id
+      // Check if the like exists for the given confession_id and user_id 
       const result = await db
         .select()
         .from(confession_likes)

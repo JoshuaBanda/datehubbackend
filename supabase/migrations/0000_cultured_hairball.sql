@@ -74,6 +74,14 @@ CREATE TABLE IF NOT EXISTS "preferences" (
 	"year_of_study" integer NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "reports" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"reporterid" integer NOT NULL,
+	"offenderid" integer NOT NULL,
+	"postid" integer NOT NULL,
+	"reportmessage" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_characteristics" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
@@ -191,6 +199,24 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "preferences" ADD CONSTRAINT "preferences_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "reports" ADD CONSTRAINT "reports_reporterid_users_userid_fk" FOREIGN KEY ("reporterid") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "reports" ADD CONSTRAINT "reports_offenderid_users_userid_fk" FOREIGN KEY ("offenderid") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "reports" ADD CONSTRAINT "reports_postid_post_post_id_fk" FOREIGN KEY ("postid") REFERENCES "public"."post"("post_id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

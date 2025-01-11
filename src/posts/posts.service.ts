@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { selectPost, post, usersTable, insertPost, selectUsers } from 'src/db/schema';
-import { eq, inArray, not, sql } from 'drizzle-orm';
+import { eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { db } from 'src/db';
 import { PostTracker } from './post-tracker';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
@@ -333,5 +333,23 @@ export class PostService {
     }
   }
 
+  
+    // Fetch messages created after the given timestamp
+    async getPostAfter(lastTimestamp: Date): Promise<selectPost[]> {
+      try {
+        // Query the database for post that have a 'createdAt' timestamp greater than the lastTimestamp
+        const Post = await db
+          .select()
+          .from(post)
+          .where(gt(post.created_at, lastTimestamp))  // Exclude post equal to lastTimestamp
+          .orderBy(post.created_at) // Ensure post are ordered by timestamp in ascending order
+          .execute();
+    
+        return Post;  // Return the result
+      } catch (error) {
+        console.error('Error fetching post after timestamp:', error);
+        throw new Error('Failed to fetch post after the specified timestamp');
+      }
+    }
 }
 

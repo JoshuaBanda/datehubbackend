@@ -192,3 +192,17 @@ export const confession_likes = pgTable('confession_likes', {
   export type selectconfessionComments = typeof confession_comments.$inferSelect;
   export type insertconfessionComments = typeof confession_comments.$inferInsert;
   
+
+  export const reportTable=pgTable('reports',{
+    id:serial('id').primaryKey(),
+    reportedby:integer('reporterid').notNull()
+        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    offender:integer('offenderid').notNull()
+    .references(()=>usersTable.userid,{onDelete:'cascade'}),
+    postid:integer('postid').notNull()
+        .references(()=>post.post_id,{onDelete:'cascade'}),
+    reportMessage:text('reportmessage').notNull(),
+  });
+
+  export type selectReport=typeof reportTable.$inferSelect;
+  export type insertReport=typeof reportTable.$inferInsert;

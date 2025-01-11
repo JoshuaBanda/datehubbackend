@@ -1,5 +1,5 @@
 {
-  "id": "d1b93b2c-6475-46c3-b225-d266619dae7c",
+  "id": "e08d9069-83f8-4c29-a15a-9e1c6332fe18",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -596,6 +596,86 @@
           ],
           "columnsTo": [
             "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.reports": {
+      "name": "reports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "reporterid": {
+          "name": "reporterid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "offenderid": {
+          "name": "offenderid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "postid": {
+          "name": "postid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reportmessage": {
+          "name": "reportmessage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reports_reporterid_users_userid_fk": {
+          "name": "reports_reporterid_users_userid_fk",
+          "tableFrom": "reports",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reporterid"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "reports_offenderid_users_userid_fk": {
+          "name": "reports_offenderid_users_userid_fk",
+          "tableFrom": "reports",
+          "tableTo": "users",
+          "columnsFrom": [
+            "offenderid"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "reports_postid_post_post_id_fk": {
+          "name": "reports_postid_post_post_id_fk",
+          "tableFrom": "reports",
+          "tableTo": "post",
+          "columnsFrom": [
+            "postid"
+          ],
+          "columnsTo": [
+            "post_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
