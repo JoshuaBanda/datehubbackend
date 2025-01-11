@@ -1,5 +1,5 @@
 {
-  "id": "44692250-26ee-45e5-837c-5bd87f8fa7d1",
+  "id": "eb6db3de-011b-481a-b067-e1bf1a9835a2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -407,6 +407,12 @@
       "name": "messages",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
         "inboxid": {
           "name": "inboxid",
           "type": "integer",
@@ -431,6 +437,12 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},

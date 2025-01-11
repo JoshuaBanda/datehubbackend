@@ -13,6 +13,7 @@ export const inboxTable = pgTable('inbox', {
 });
 
 export const messagesTable = pgTable('messages', {
+    id:serial('id').primaryKey(),
     inboxid: integer('inboxid')
         .notNull()
         .references(() => inboxTable.inboxid, { onDelete: 'cascade' }),
@@ -21,6 +22,7 @@ export const messagesTable = pgTable('messages', {
         .references(() => usersTable.userid, { onDelete: 'cascade' }),
     message: text('message'),
     createdat: timestamp('createdat').defaultNow(),
+    status:text('status').notNull(),
 }
 );
 

@@ -1,5 +1,5 @@
 // MessageController.ts
-import { Controller, Post, Body, HttpException, HttpStatus, Sse, Param, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Sse, Param, Get, Query, Put } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { insertMessages, selectMessages } from 'src/db/schema';
 import { Observable } from 'rxjs';
@@ -29,6 +29,29 @@ export class MessageController {
       throw new HttpException('Failed to send message', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Put('update/:id')
+async updateMessage(
+  @Param('id') messageId: string, // Get the message ID from the URL (string type)
+  @Body() updateMessageDto: { status: string }, // Status update in the body
+) {
+  try {
+    // Call the service to update the message status
+    const updatedMessage = await this.messageService.updateMessage(messageId, updateMessageDto.status);
+
+    if (!updatedMessage) {
+      throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Emit the 'message.updated' event if needed
+    this.eventEmitter.emit('message.updated', updatedMessage);
+
+    return updatedMessage; // Return the updated message
+  } catch (error) {
+    throw new HttpException('Failed to update message', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+}
+
 
   @Sse('event')
 getAllMessageEvents(

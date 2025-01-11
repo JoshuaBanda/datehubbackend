@@ -47,10 +47,12 @@ CREATE TABLE IF NOT EXISTS "likes" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "messages" (
+	"id" serial PRIMARY KEY NOT NULL,
 	"inboxid" integer NOT NULL,
 	"userid" integer NOT NULL,
 	"message" text,
-	"createdat" timestamp DEFAULT now()
+	"createdat" timestamp DEFAULT now(),
+	"status" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "post" (
