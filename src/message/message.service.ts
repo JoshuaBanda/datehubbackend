@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { insertMessages, messagesTable, post, selectMessages, selectPost } from 'src/db/schema';
 import { db } from 'src/db';
-import { eq, gt, gte } from 'drizzle-orm';
+import { eq, gt, gte, sql } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
@@ -35,23 +35,29 @@ export class MessageService {
       .execute();
   }
 
-  // Fetch messages created after the given timestamp
-  async getMessagesAfter(lastTimestamp: Date): Promise<selectMessages[]> {
+  async getMessagesAfter(lastTimestamp: Date, inboxIds: string[]): Promise<selectMessages[]> {
     try {
-      // Query the database for messages that have a 'createdAt' timestamp greater than the lastTimestamp
+      const lastTimestampString = lastTimestamp.toISOString(); // Convert Date to string
+  
       const messages = await db
         .select()
         .from(messagesTable)
-        .where(gt(messagesTable.createdat, lastTimestamp))  // Exclude messages equal to lastTimestamp
-        .orderBy(messagesTable.createdat) // Ensure messages are ordered by timestamp in ascending order
+        .where(
+          sql`${messagesTable.createdat} > ${lastTimestampString} AND ${messagesTable.inboxid} IN (${sql.join(inboxIds.map(id => parseInt(id)), sql`,`)})`
+        )
+        .orderBy(messagesTable.createdat)
         .execute();
   
-      return messages;  // Return the result
+      return messages; // Return the result
     } catch (error) {
       console.error('Error fetching messages after timestamp:', error);
       throw new Error('Failed to fetch messages after the specified timestamp');
     }
   }
+  
+
+
+
 
   async getPostAfter(lastTimestamp: Date): Promise<selectPost[]> {
     try {

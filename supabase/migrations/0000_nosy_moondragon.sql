@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS "post" (
 	"post_id" serial PRIMARY KEY NOT NULL,
 	"description" text NOT NULL,
 	"photo_url" text NOT NULL,
+	"photo_public_id" text NOT NULL,
 	"user_id" integer NOT NULL,
 	"createdat" timestamp DEFAULT now()
 );
