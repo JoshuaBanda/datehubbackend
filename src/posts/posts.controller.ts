@@ -46,40 +46,41 @@ export class PostController {
 
 
 
-@Post('create')
-@UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
-async createPost(
-  @Body() createPostDto: insertPost,
-  @UploadedFile() file: Express.Multer.File,
-) {
-  if (!file) {
-    throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+  @Post('create')
+  @UseInterceptors(FileInterceptor('file')) // Intercept the uploaded file
+  async createPost(
+    @Body() createPostDto: insertPost,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+    
+    try {
+      // Upload file to Cloudinary
+      const result = await this.postService.uploadImage(file.buffer, file.originalname, 90);
+      const { public_id: publicId, secure_url: photoUrl } = result;
+  
+      // Add the photo URL and publicId to the post DTO
+      const newPost = {
+        ...createPostDto,
+        photo_url: photoUrl,         // URL for rendering the image
+        photo_public_id: publicId,   // Unique ID for the image (to delete it later)
+      };
+  
+      // Insert the post into the database
+      const createdPost = await this.postService.createPost(newPost);
+  
+      return {
+        message: 'Post created successfully!',
+        post: createdPost,
+      };
+    } catch (error) {
+      console.error('Error creating post:', error);
+      throw new HttpException('Failed to create post', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   
-  try {
-    // Upload file to Cloudinary
-    const result = await this.postService.uploadImage(file.buffer, file.originalname,90);
-    const { public_id: publicId, secure_url: photoUrl } = result;
-
-    // Add the photo URL to the post DTO
-    const newPost = {
-      ...createPostDto,
-      photo_url: photoUrl,
-    };
-
-    // Insert the post into the database
-    const createdPost = await this.postService.createPost(newPost);
-
-    return {
-      message: 'Post created successfully!',
-      post: createdPost,
-    };
-  } catch (error) {
-    //console.error('Error creating post:', error);
-    throw new HttpException('Failed to create post', HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-}
-
 
   @Get(':id')
   async getPostById(@Param('id') id: number): Promise<selectPost | null> {
@@ -108,16 +109,37 @@ async createPost(
     }
   }
 
-  @Delete(':id')
-  async deletePost(@Param('id') id: number) {
+
+
+
+
+
+  @Delete(':postId')
+  async deletePost(@Param('postId') postId: number) {
     try {
-      await this.postService.deletePost(id);
-      return { message: 'Post deleted successfully' };
+      // Fetch the post from the database by postId to get the associated photo public_id
+      const post = await this.postService.getPostById(postId);
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+
+      // Delete the image from Cloudinary using the stored public_id
+      const { photo_public_id } = post;
+      if (photo_public_id) {
+        await this.postService.deleteImage(photo_public_id); // Delete image from Cloudinary
+      }
+
+      // Now delete the post from the database
+      await this.postService.deletePost(postId);
+
+      return {
+        message: 'Post and associated photo deleted successfully',
+      };
     } catch (error) {
+      console.error('Error deleting post:', error);
       throw new HttpException('Failed to delete post', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 
   @Get('user/:userId')
   async getPostsByUserId(@Param('userId') userId: number) {

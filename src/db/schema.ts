@@ -73,15 +73,16 @@ export type insertUsers=typeof usersTable.$inferInsert;
 export type selectUsers=typeof usersTable.$inferSelect;
 
     
-export const post=pgTable('post',{
-    post_id:serial('post_id').primaryKey(),
-    description:text('description').notNull(),
-    photo_url:text('photo_url').notNull(),
-    user_id:integer('user_id')
-        .notNull()
-        .references(()=>usersTable.userid,{onDelete:'cascade'}),
+export const post = pgTable('post', {
+    post_id: serial('post_id').primaryKey(),
+    description: text('description').notNull(),
+    photo_url: text('photo_url').notNull(), // This will store the URL of the photo
+    photo_public_id: text('photo_public_id').notNull(), // New field to store the publicId of the photo
+    user_id: integer('user_id')
+      .notNull()
+      .references(() => usersTable.userid, { onDelete: 'cascade' }),
     created_at: timestamp('createdat').defaultNow(),
-})
+  });
 
 export type selectPost=typeof post.$inferSelect;
 export type insertPost=typeof post.$inferInsert;
