@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { insertMessages, messagesTable, selectMessages } from 'src/db/schema';
+import { insertMessages, messagesTable, post, selectMessages, selectPost } from 'src/db/schema';
 import { db } from 'src/db';
 import { eq, gt, gte } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -52,5 +52,28 @@ export class MessageService {
       throw new Error('Failed to fetch messages after the specified timestamp');
     }
   }
+
+  async getPostAfter(lastTimestamp: Date): Promise<selectPost[]> {
+    try {
+      //console.log('Fetching posts after timestamp:', lastTimestamp); // Log the input timestamp
+  
+      // Query the database for posts that have a 'createdAt' timestamp greater than the lastTimestamp
+      const result = await db
+        .select()
+        .from(post)
+        .where(gt(post.created_at, lastTimestamp))  // Exclude posts equal to lastTimestamp
+        .orderBy(post.created_at) // Ensure posts are ordered by timestamp in ascending order
+        .execute();
+  
+      // Log the query result before returning
+      //console.log('Fetched posts:', result); // Log the result from the database query
+  
+      return result;  // Return the result
+    } catch (error) {
+      //console.error('Error fetching post after timestamp:', error); // Log any error that occurs during the query
+      throw new Error('Failed to fetch post after the specified timestamp');
+    }
+  }
+  
   
 }

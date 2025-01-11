@@ -337,17 +337,22 @@ export class PostService {
     // Fetch messages created after the given timestamp
     async getPostAfter(lastTimestamp: Date): Promise<selectPost[]> {
       try {
-        // Query the database for post that have a 'createdAt' timestamp greater than the lastTimestamp
-        const Post = await db
+        //console.log('Fetching posts after timestamp:', lastTimestamp); // Log the input timestamp
+    
+        // Query the database for posts that have a 'createdAt' timestamp greater than the lastTimestamp
+        const result = await db
           .select()
           .from(post)
-          .where(gt(post.created_at, lastTimestamp))  // Exclude post equal to lastTimestamp
-          .orderBy(post.created_at) // Ensure post are ordered by timestamp in ascending order
+          .where(gt(post.created_at, lastTimestamp))  // Exclude posts equal to lastTimestamp
+          .orderBy(post.created_at) // Ensure posts are ordered by timestamp in ascending order
           .execute();
     
-        return Post;  // Return the result
+        // Log the query result before returning
+        //console.log('Fetched posts:', result); // Log the result from the database query
+    
+        return result;  // Return the result
       } catch (error) {
-        console.error('Error fetching post after timestamp:', error);
+        console.error('Error fetching post after timestamp:', error); // Log any error that occurs during the query
         throw new Error('Failed to fetch post after the specified timestamp');
       }
     }
