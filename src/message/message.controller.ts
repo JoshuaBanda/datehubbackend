@@ -16,7 +16,6 @@ export class MessageController {
   @Post('send')
   async createMessage(@Body() CreateMessageDto: insertMessages) {
     try {
-      console.log('j');
       // Add the message to the database
       const result = await this.messageService.addMessage(CreateMessageDto);
       
@@ -30,7 +29,7 @@ export class MessageController {
     }
   }
 
-  @Put('update/:id')
+  @Put('update')
 async updateMessage(
   @Param('id') messageId: string, // Get the message ID from the URL (string type)
   @Body() updateMessageDto: { status: string }, // Status update in the body

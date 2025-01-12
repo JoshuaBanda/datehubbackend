@@ -63,15 +63,15 @@ export class EmailService {
 
   
   async sendEmailToSchool(message: { message: string }): Promise<void> {
-    // Function to introduce a delay
+    // Function to introduce a delay,social
+    //skippin early child hood dev,gender
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-  
-    const departments = [ 'bsc-bio','bsc-inf', 'bed-com', 'bsc-com'];
-    let yearSuffix = 20; // Start with year '22'
-    const maxAttempts = 5;//max attempt to retry sending email
+    const departments = [ /*'bsc-inf','bsc-bio', 'bed-com', 'bsc-com'*/'bah-mfd','ba-eco','bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh',];
+    let yearSuffix = 21; // Start with year '22'
+    const maxAttempts = 50;//max attempt to retry sending email
     const retryLimit = 4;//maxmum retry before moving to the next unit
     const timeoutLimit = 20000; // Increased timeout limit (20 seconds)
-    const maxRegNumber =3 ;//max reg numbers for a cohort
+    const maxRegNumber =30 ;//max reg numbers for a cohort
     const emailDelay = 1000;  // Delay between emails (1 second)
   
     let consecutiveFailures = 0;
