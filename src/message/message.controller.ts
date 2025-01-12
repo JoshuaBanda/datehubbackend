@@ -1,5 +1,5 @@
 // MessageController.ts
-import { Controller, Post, Body, HttpException, HttpStatus, Sse, Param, Get, Query, Put } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Sse, Param, Get, Query, Put, BadRequestException } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { insertMessages, selectMessages } from 'src/db/schema';
 import { Observable } from 'rxjs';
@@ -30,26 +30,22 @@ export class MessageController {
   }
 
   @Put('update')
-async updateMessage(
-  @Param('id') messageId: string, // Get the message ID from the URL (string type)
-  @Body() updateMessageDto: { status: string }, // Status update in the body
-) {
-  try {
-    // Call the service to update the message status
-    const updatedMessage = await this.messageService.updateMessage(messageId, updateMessageDto.status);
-
-    if (!updatedMessage) {
-      throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
+  async updateMessageController(
+    @Body() body: { id: number, status: string }  // Expecting the 'id' and 'status' in the body
+  ) {
+    //console.log("Received body:", body);  // Log the body for debugging
+  
+    const { id, status } = body;  // Destructure the id and status from the body
+  
+    // Check if the id is valid
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid message ID');
     }
-
-    // Emit the 'message.updated' event if needed
-    this.eventEmitter.emit('message.updated', updatedMessage);
-
-    return updatedMessage; // Return the updated message
-  } catch (error) {
-    throw new HttpException('Failed to update message', HttpStatus.INTERNAL_SERVER_ERROR);
+  
+    const result= this.messageService.updateMessage(id, status);
+    return 'message status updated to receive';
   }
-}
+  
 
 
   @Sse('event')

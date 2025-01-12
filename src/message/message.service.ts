@@ -83,41 +83,46 @@ export class MessageService {
   
  
   
-  async updateMessage(id: string, status: string): Promise<any> {
+  async updateMessage(id: number, status: string): Promise<any> {
     try {
-      // Ensure that the 'id' is treated as a number
-      const messageId = parseInt(id, 10); // Convert the id to a number
+      // Log the 'id' and 'status' before processing
+      //console.log('Received message update request: ID:', id, 'Status:', status);
   
-      // Validate that the messageId is a valid number
-      if (isNaN(messageId)) {
+      // Validate that the 'id' is a valid number
+      if (isNaN(id)) {
+        console.error('Error: Invalid message ID', id);
         throw new Error('Invalid message ID');
       }
   
-      // Update the message's status
+      // Validate that 'status' is a non-empty string (you can adjust this if needed)
+      if (!status || typeof status !== 'string') {
+        throw new Error('Invalid status value');
+      }
+  
+      // Log the query details for debugging
+      //console.log(`Attempting to update message with ID: ${id} to status: ${status}`);
+  
+      // Update the message's status in the database
       const result = await db
         .update(messagesTable)
         .set({ status: status })
-        .where(eq(messagesTable.id, messageId)); // Use the number here
+        .where(eq(messagesTable.id, id)); // Use the number here
   
-      // Check if any row was updated
+      // If no rows were updated, it means the message ID is not found
       if (result.count === 0) {
-        throw new Error('Message not found');
+        console.error('No message found with ID:', id);
+        throw new Error(`No message found with ID ${id}`);
       }
   
-      // Fetch and return the updated message
-      const updatedMessage = await db
-        .select()
-        .from(messagesTable)
-        .where(eq(messagesTable.id, messageId))
-        .execute();
-  
-      return updatedMessage[0]; // Return the updated message
+      return;
   
     } catch (error) {
-      console.error('Error updating message:', error);
-      throw new Error('Failed to update message');
+      // Log and rethrow the error with a more specific message
+      console.error('Error updating message:', error.message || error);
+      throw new Error(`Failed to update message: ${error.message || 'Unknown error'}`);
     }
   }
+  
   
 
   
