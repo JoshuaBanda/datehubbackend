@@ -83,7 +83,7 @@ export class MessageService {
   
  
   
-  async updateMessage(id: number, status: string): Promise<any> {
+  async updateMessageStatus(id: number, status: string): Promise<any> {
     try {
       // Log the 'id' and 'status' before processing
       //console.log('Received message update request: ID:', id, 'Status:', status);
@@ -125,5 +125,47 @@ export class MessageService {
   
   
 
+
+
+
+
+  async updateMessage(id: number, message: string): Promise<any> {
+    try {
+      // Log the 'id' and 'status' before processing
+      //console.log('Received message update request: ID:', id, 'Status:', status);
+  
+      // Validate that the 'id' is a valid number
+      if (isNaN(id)) {
+        console.error('Error: Invalid message ID', id);
+        throw new Error('Invalid message ID');
+      }
+  
+      // Validate that 'status' is a non-empty string (you can adjust this if needed)
+      if (!message || typeof message !== 'string') {
+        throw new Error('Invalid message value');
+      }
+  
+  
+      // Update the message's message in the database
+      const result = await db
+        .update(messagesTable)
+        .set({ message : message })
+        .where(eq(messagesTable.id, id)); // Use the number here
+  
+      // If no rows were updated, it means the message ID is not found
+      if (result.count === 0) {
+        console.error('No message found with ID:', id);
+        throw new Error(`No message found with ID ${id}`);
+      }
+  
+      return;
+  
+    } catch (error) {
+      // Log and rethrow the error with a more specific message
+      console.error('Error updating message:', error.message || error);
+      throw new Error(`Failed to update message: ${error.message || 'Unknown error'}`);
+    }
+  }
+  
   
 }

@@ -42,10 +42,26 @@ export class MessageController {
       throw new BadRequestException('Invalid message ID');
     }
   
-    const result= this.messageService.updateMessage(id, status);
+    const result= this.messageService.updateMessageStatus(id, status);
     return 'message status updated to receive';
   }
   
+  @Put('updatemessagetext')
+  async updateMessageText(
+    @Body() body: { id: number, message: string }  // Expecting the 'id' and 'status' in the body
+  ) {
+    //console.log("Received body:", body);  // Log the body for debugging
+  
+    const { id, message } = body;  // Destructure the id and status from the body
+  
+    // Check if the id is valid
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid message ID');
+    }
+  
+    const result= this.messageService.updateMessage(id, message);
+    return 'message status updated to receive';
+  }
 
 
   @Sse('event')

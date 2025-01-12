@@ -20,7 +20,7 @@ export const messagesTable = pgTable('messages', {
     userid: integer('userid')
         .notNull()
         .references(() => usersTable.userid, { onDelete: 'cascade' }),
-    message: text('message'),
+    message: text('message').notNull(),
     createdat: timestamp('createdat').defaultNow(),
     status:text('status').notNull(),
 }
