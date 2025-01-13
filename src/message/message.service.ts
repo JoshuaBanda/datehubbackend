@@ -68,12 +68,7 @@ export class MessageService {
     try {
   
       const messages = await db
-  .select({
-    id:messagesTable.id,
-    status:messagesTable.status,
-    inboxid:messagesTable.inboxid,
-    userid:messagesTable.userid,
-  })
+  .select()
   .from(messagesTable)
   .where(
     sql`${messagesTable.inboxid} IN (${sql.join(inboxIds.map(id => parseInt(id)), sql`,`)}) AND ${messagesTable.status} = 'sent'`
