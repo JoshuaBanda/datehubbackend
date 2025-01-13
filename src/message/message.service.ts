@@ -6,7 +6,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 type MessageStatus = {
   id:number,
-  status: string; // The field we are selecting from the database
+  status: string;
+  inboxid:number;
+  userid:number;
+
 };
 
 @Injectable()
@@ -67,7 +70,9 @@ export class MessageService {
       const messages = await db
   .select({
     id:messagesTable.id,
-    status:messagesTable.status
+    status:messagesTable.status,
+    inboxid:messagesTable.inboxid,
+    userid:messagesTable.userid,
   })
   .from(messagesTable)
   .where(
