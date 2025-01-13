@@ -4,6 +4,11 @@ import { db } from 'src/db';
 import { eq, gt, gte, sql } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+type MessageStatus = {
+  id:number,
+  status: string; // The field we are selecting from the database
+};
+
 @Injectable()
 export class MessageService {
   constructor(private eventEmitter: EventEmitter2) {}
@@ -56,7 +61,27 @@ export class MessageService {
   }
   
 
+  async getMessagesStatus(inboxIds: string[]): Promise<MessageStatus[]> {
+    try {
+  
+      const messages = await db
+  .select({
+    id:messagesTable.id,
+    status:messagesTable.status
+  })
+  .from(messagesTable)
+  .where(
+    sql`${messagesTable.inboxid} IN (${sql.join(inboxIds.map(id => parseInt(id)), sql`,`)}) AND ${messagesTable.status} = 'sent'`
+  )
+  .orderBy(messagesTable.createdat)
+  .execute();
 
+      return messages; // Return the result
+    } catch (error) {
+      console.error('Error fetching messages after timestamp:', error);
+      throw new Error('Failed to fetch messages after the specified timestamp');
+    }
+  }
 
 
   async getPostAfter(lastTimestamp: Date): Promise<selectPost[]> {

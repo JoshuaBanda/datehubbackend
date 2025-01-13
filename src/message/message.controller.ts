@@ -193,6 +193,53 @@ getAllMessageEvents(
     });
   }
   
+
+  
+
+  @Sse('statusSse')
+  getMessageStatus(
+    @Query('inboxIds') inboxIds: string,  // Extract 'inboxIds' as query parameter
+  ): Observable<any> {
+    let lastEmittedMessageIds: Set<string> = new Set(); // Track already emitted message IDs to avoid duplicates
+  
+    // Convert inboxIds query string to a list of inbox IDs
+    const inboxIdList = inboxIds.split(','); // Convert comma-separated string to an array of inbox IDs
+  
+    return new Observable((observer) => {
+      const intervalId = setInterval(async () => {
+        try {
+          // Fetch new messages based on inbox IDs and 'sent' status
+          const newMessages = await this.messageService.getMessagesStatus(inboxIdList);
+  
+          // Only send new messages if any were found
+          if (newMessages && newMessages.length > 0) {
+            // Filter out messages that have already been emitted using a unique identifier (e.g., message ID or timestamp)
+            const uniqueMessages = newMessages.filter((message) => {
+              const messageId = message.id.toString(); // Use the unique 'id' to track emitted messages
+              return !lastEmittedMessageIds.has(messageId);
+            });
+  
+            if (uniqueMessages.length > 0) {
+              // Emit new messages and track their message IDs to avoid re-emission
+              uniqueMessages.forEach((message) => {
+                const messageId = message.id.toString();  // Use 'id' for uniqueness
+                lastEmittedMessageIds.add(messageId);  // Add the message's unique ID to the set
+              });
+  
+              // Send the new messages to the client
+              observer.next({ data: uniqueMessages });
+            }
+          }
+        } catch (error) {
+          observer.error(error);
+        }
+      }, 5000); // Send updates every 5 seconds, but only for new messages
+  
+      return () => {
+        clearInterval(intervalId);
+      };
+    });
+  }
   
 
 }
