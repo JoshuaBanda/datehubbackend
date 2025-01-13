@@ -71,15 +71,15 @@ export class MessageService {
   .select()
   .from(messagesTable)
   .where(
-    sql`${messagesTable.inboxid} IN (${sql.join(inboxIds.map(id => parseInt(id)), sql`,`)}) AND ${messagesTable.status} = 'sent'`
+    sql`${messagesTable.inboxid} IN (${sql.join(inboxIds.map(id => parseInt(id)), sql`,`)}) AND ${messagesTable.status} = 'seen'`
   )
   .orderBy(messagesTable.createdat)
   .execute();
 
       return messages; // Return the result
     } catch (error) {
-      console.error('Error fetching messages after timestamp:', error);
-      throw new Error('Failed to fetch messages after the specified timestamp');
+      console.error('Error fetching messages:', error);
+      throw new Error('Failed to fetxh messages');
     }
   }
 
