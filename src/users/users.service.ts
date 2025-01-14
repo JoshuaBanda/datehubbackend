@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { preferences, select_preferences, selectUsers, usersTable } from 'src/db/schema';
+import { preferences, select_preferences, select_user_characteristics, selectUsers, user_characteristics, usersTable } from 'src/db/schema';
 import { db } from 'src/db';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
@@ -96,6 +96,23 @@ async getPreference(userId: number): Promise<select_preferences | null> {
   }
 }
 
+ // Get user characteristics by user_id
+  async getUserCharacteristics(userId: number): Promise<select_user_characteristics | null> {
+    try {
+      const [userCharacteristic] = await db
+        .select()
+        .from(user_characteristics)
+        .where(eq(user_characteristics.user_id, userId))
+        .execute();
+
+      return userCharacteristic || null;
+    } catch (error) {
+      console.error('Error retrieving user characteristics:', error);
+      throw new InternalServerErrorException('Failed to retrieve user characteristics');
+    }
+  }
+
+
 // Get preferred users based on similarity of preferences
 // Get preferred users based on similarity of preferences, with pagination but without filtering by similarity score
 async getPreferredUsers(
@@ -105,70 +122,83 @@ async getPreferredUsers(
   minSimilarityScore: number = 1 // Add the 'minSimilarityScore' parameter
 ): Promise<any[]> {
   try {
-    console.log(`Fetching preferred users for user ${userId}`);
-
     // Fetch the preferences of the current user making the request
     const userPreferences = await this.getPreference(userId);
     if (!userPreferences) {
-      console.log(`Preferences for user ${userId} not found`);
       throw new Error(`Preferences for user ${userId} not found`);
     }
 
-    console.log('User preferences:', userPreferences);
-
     // Fetch all users to compare with the current user
     const users = await this.getAllUsers();
-    console.log(`Fetched ${users.length} users to compare with user ${userId}`);
 
     const similarUsers = [];
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
     // Compare each user's preferences with the requestor's preferences
-    for (const user of users.slice(startIndex, endIndex)) { // Use slice for pagination
-      console.log(`Comparing preferences for user ${user.userid}`);
-
+    for (const user of users.slice(startIndex, endIndex)) {
       if (user.userid === userId) {
-        console.log(`Skipping user ${user.userid} as it's the requestor`);
         continue; // Skip the user making the request
       }
 
-      const otherUserPreferences = await this.getPreference(user.userid);
+      // Fetch characteristics (including dob) for the other user
+      const userCharacteristics = await this.getUserCharacteristics(user.userid);
+      
+      // Add a null check for userCharacteristics before accessing 'dob'
+      if (!userCharacteristics || !userCharacteristics.dob) {
+        continue; // Skip users without characteristics or dob
+      }
 
+      // Calculate age from the dob
+      const userAge = this.calculateAge(userCharacteristics.dob);
+      
+
+      // Fetch characteristics of other users not Fetch preferences for the other user 
+      const otherUserPreferences = await this.getPreference(user.userid);
       if (!otherUserPreferences) {
-        console.log(`No preferences found for user ${user.userid}`);
-        continue; // Skip users without preferences
+        continue; // Skip if no preferences are found for the user
       }
 
       // Compare preferences (basic matching example)
       const { similarityScore, matchedCriteria } = this.calculatePreferenceSimilarity(userPreferences, otherUserPreferences);
-      console.log(`Calculated similarity score for user ${user.userid}: ${similarityScore}`);
 
-      // We do not filter by similarity score, just include all users from the pagination range
-      console.log(`User ${user.userid} has the following matching criteria:`);
-      matchedCriteria.forEach(criteria => console.log(`- ${criteria}`));
-
+      // Include the calculated age in the matched criteria
+      const matchedWithAge = matchedCriteria.concat(`Age: ${userAge}`);
+      
       similarUsers.push({
         user,
         similarityScore,
-        matchedCriteria, // Include matched criteria in the response
+        matchedCriteria: matchedWithAge, // Include matched criteria including age
       });
     }
 
     // Sort users by similarity score (higher scores first)
     similarUsers.sort((a, b) => b.similarityScore - a.similarityScore);
-    console.log(`Sorted similar users by similarity score`);
 
-    // Return the paginated list of similar users, along with their similarity scores and matched criteria
     return similarUsers.map((entry) => ({
       user: entry.user,
       similarityScore: entry.similarityScore,
       matchedCriteria: entry.matchedCriteria,
     }));
   } catch (error) {
+    // Log the error to understand more clearly
     console.error('Error fetching preferred users:', error);
     throw new InternalServerErrorException('Failed to fetch preferred users', error.message);
   }
+}
+
+// Helper function to calculate age from dob
+private calculateAge(dob: string): number {
+  const birthDate = new Date(dob);
+  const currentDate = new Date();
+  let age = currentDate.getFullYear() - birthDate.getFullYear();
+  const monthDifference = currentDate.getMonth() - birthDate.getMonth();
+
+  if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
 }
 
 // A basic similarity score function (can be expanded for more sophisticated matching)

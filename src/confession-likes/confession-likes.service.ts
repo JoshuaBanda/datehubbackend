@@ -70,20 +70,26 @@ async addLike(confessionId: number, userId: number): Promise<any> { try {
     }
   }
 
-  // Check if a user has liked a confession
-  async hasUserLikedConfession(confessionId: number, userId: number): Promise<boolean> {
-    try {
-      // Check if the like exists for the given confession_id and user_id 
-      const result = await db
-        .select()
-        .from(confession_likes)
-        .where(eq(confession_likes.confession_id, confessionId) && eq(confession_likes.user_id, userId))
-        .execute();
 
-      // If result.length > 0, it means the user has liked the confession
-      return result.length > 0;
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to check like status');
+
+    async hasUserLikedConfession(confessionId:number,userId:number): Promise<boolean> {
+      try {
+        //console.log("Calling hasUserLikedConfession with confessionId:", confessionId, "and userId:", userId);
+
+    
+        const result = await db
+    .select()
+    .from(confession_likes)
+    .where(
+      sql`${confession_likes.confession_id} = (${confessionId}) AND ${confession_likes.user_id} = (${userId})`
+    )
+    .execute();
+    //console.log('Result:',result);
+        return result.length>0; // Return the result
+      } catch (error) {
+        console.error("Error checking like status:", error);
+        throw new InternalServerErrorException('Failed to check like status');
+      }
     }
-  }
+  
 }
