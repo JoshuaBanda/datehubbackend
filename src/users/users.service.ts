@@ -165,7 +165,7 @@ async getPreferredUsers(
         preferred_year_of_study: userCharacteristics.year_of_study,
       };
 
-      if(userPreferences.preferred_sex!=characteristics.preferred_sex){
+      if(userPreferences.preferred_sex==characteristics.preferred_sex){
         console.log('sex ',userPreferences.preferred_sex,'sex',characteristics.preferred_sex);
         const { similarityScore, matchedCriteria } = this.calculatePreferenceSimilarity(userPreferences, characteristics);
 
