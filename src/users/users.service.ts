@@ -114,7 +114,6 @@ async getPreference(userId: number): Promise<select_preferences | null> {
 
 
 // Get preferred users based on similarity of preferences
-// Get preferred users based on similarity of preferences, with pagination but without filtering by similarity score
 async getPreferredUsers(
   userId: number, 
   page: number = 1, 
@@ -135,7 +134,7 @@ async getPreferredUsers(
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
-    // Compare each user's preferences with the requestor's preferences
+    // Compare each user's characteristics with the requestor's preferences
     for (const user of users.slice(startIndex, endIndex)) {
       if (user.userid === userId) {
         continue; // Skip the user making the request
@@ -144,42 +143,55 @@ async getPreferredUsers(
       // Fetch characteristics (including dob) for the other user
       const userCharacteristics = await this.getUserCharacteristics(user.userid);
       
-      // Add a null check for userCharacteristics before accessing 'dob'
+      // Check if user characteristics and dob are available
       if (!userCharacteristics || !userCharacteristics.dob) {
         continue; // Skip users without characteristics or dob
       }
 
       // Calculate age from the dob
       const userAge = this.calculateAge(userCharacteristics.dob);
-      
 
-      // Fetch characteristics of other users not Fetch preferences for the other user 
-      const otherUserPreferences = await this.getPreference(user.userid);
-      if (!otherUserPreferences) {
-        continue; // Skip if no preferences are found for the user
+      // Create characteristics object for comparison (without preferences)
+      const characteristics = {
+        id: userCharacteristics.id,
+        preferred_user_id: userCharacteristics.user_id,
+        preferred_sex: userCharacteristics.sex,
+        preferred_age: userAge,
+        preferred_height: userCharacteristics.height,
+        preferred_skin_color: userCharacteristics.skin_color,
+        preferred_hobby: userCharacteristics.hobby,  // Corrected 'hoby' to 'hobby'
+        preferred_location: userCharacteristics.location,
+        preferred_program_of_study: userCharacteristics.program_of_study,
+        preferred_year_of_study: userCharacteristics.year_of_study,
+      };
+
+      if(userPreferences.preferred_sex!=characteristics.preferred_sex){
+        console.log('sex ',userPreferences.preferred_sex,'sex',characteristics.preferred_sex);
+        const { similarityScore, matchedCriteria } = this.calculatePreferenceSimilarity(userPreferences, characteristics);
+
+        // Include the calculated age in the matched criteria
+        const matchedWithAge = matchedCriteria.concat(`Age: ${userAge}`);
+  
+        similarUsers.push({
+          user,
+          similarityScore,
+          matchedCriteria: matchedWithAge, // Include matched criteria including age
+        });
       }
+      // Compare current user preferences with the other user's characteristics
 
-      // Compare preferences (basic matching example)
-      const { similarityScore, matchedCriteria } = this.calculatePreferenceSimilarity(userPreferences, otherUserPreferences);
-
-      // Include the calculated age in the matched criteria
-      const matchedWithAge = matchedCriteria.concat(`Age: ${userAge}`);
-      
-      similarUsers.push({
-        user,
-        similarityScore,
-        matchedCriteria: matchedWithAge, // Include matched criteria including age
-      });
     }
 
     // Sort users by similarity score (higher scores first)
     similarUsers.sort((a, b) => b.similarityScore - a.similarityScore);
 
+    // Return the similar users along with similarity score and matched criteria
     return similarUsers.map((entry) => ({
       user: entry.user,
       similarityScore: entry.similarityScore,
       matchedCriteria: entry.matchedCriteria,
     }));
+
   } catch (error) {
     // Log the error to understand more clearly
     console.error('Error fetching preferred users:', error);

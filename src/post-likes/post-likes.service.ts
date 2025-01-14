@@ -74,11 +74,13 @@ export class LikesService {
   async hasUserLikedPost(postId: number, userId: number): Promise<boolean> {
     try {
       // Check if the like exists for the given post_id and user_id
-      const result = await db
-        .select()
-        .from(likes)
-        .where(eq(likes.post_id, postId) && eq(likes.user_id, userId))
-        .execute();
+          const result = await db
+              .select()
+              .from(likes)
+              .where(
+                sql`${likes.post_id} = (${postId}) AND ${likes.user_id} = (${userId})`
+              )
+              .execute();
 
       // If result.length > 0, it means the user has liked the post
       return result.length > 0;
