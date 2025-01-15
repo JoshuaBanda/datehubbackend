@@ -1,3 +1,12 @@
+CREATE TABLE IF NOT EXISTS "business" (
+	"business" serial PRIMARY KEY NOT NULL,
+	"description" text NOT NULL,
+	"photo_url" text NOT NULL,
+	"photo_public_id" text NOT NULL,
+	"user_id" integer NOT NULL,
+	"createdat" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "comments" (
 	"comment_id" serial PRIMARY KEY NOT NULL,
 	"comment" text NOT NULL,
@@ -50,7 +59,7 @@ CREATE TABLE IF NOT EXISTS "messages" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"inboxid" integer NOT NULL,
 	"userid" integer NOT NULL,
-	"message" text,
+	"message" text NOT NULL,
 	"createdat" timestamp DEFAULT now(),
 	"status" text NOT NULL
 );
@@ -109,6 +118,12 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"activationstatus" boolean NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "business" ADD CONSTRAINT "business_user_id_users_userid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("userid") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "comments" ADD CONSTRAINT "comments_post_id_post_post_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."post"("post_id") ON DELETE cascade ON UPDATE no action;

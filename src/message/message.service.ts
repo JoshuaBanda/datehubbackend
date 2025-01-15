@@ -14,7 +14,7 @@ type MessageStatus = {
 
 @Injectable()
 export class MessageService {
-  constructor(private eventEmitter: EventEmitter2) {}
+  constructor( ) {}
 
   async addMessage(data: insertMessages) {
     try {
@@ -191,6 +191,7 @@ export class MessageService {
       throw new Error(`Failed to update message: ${error.message || 'Unknown error'}`);
     }
   }
+  
   
   
 }

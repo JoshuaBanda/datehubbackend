@@ -4,12 +4,14 @@ import { MessageService } from './message.service';
 import { insertMessages, selectMessages } from 'src/db/schema';
 import { Observable } from 'rxjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BusinessService } from 'src/business/business.service';
 
 @Controller('message')
 export class MessageController {
   constructor(
     private readonly messageService: MessageService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly businessService:BusinessService,
   ) {}
 
   // Endpoint to send a message
@@ -242,4 +244,58 @@ getAllMessageEvents(
   }
   
 
+
+
+
+
+
+  @Sse('business-sse') // This will listen for SSE events on /business/events
+  getAllBusinessEvents(
+    @Query('inboxIds') inboxIds: string,  // Extract the inboxIds query parameter
+  ): Observable<any> {
+    let lastTimestamp = new Date(0); // Start with the epoch time to get all businesses initially
+    let lastEmittedBusinessIds: Set<string> = new Set(); // Track already emitted business IDs to avoid duplicates
+
+    // Convert inboxIds query string to a list of inbox IDs
+    const inboxIdList = inboxIds.split(',');
+
+    return new Observable((observer) => {
+      const intervalId = setInterval(async () => {
+        try {
+          // Fetch only new businesses created after the last timestamp, and with the provided inbox IDs
+          const newBusinesses = await this.businessService.getBusinessAfter(lastTimestamp);
+
+          // Only send new businesses if any were found
+          if (newBusinesses && newBusinesses.length > 0) {
+            // Filter out businesses that have already been emitted using a unique identifier
+            const uniqueBusinesses = newBusinesses.filter((business) => {
+              const businessId = business.created_at.toISOString(); // Convert Date to string using toISOString()
+              return !lastEmittedBusinessIds.has(businessId);
+            });
+
+            if (uniqueBusinesses.length > 0) {
+              // Update the last timestamp to the most recent business's createdAt
+              const latestTimestamp = newBusinesses[newBusinesses.length - 1].created_at;
+              lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
+
+              // Emit new businesses and track their business IDs to avoid re-emission
+              uniqueBusinesses.forEach((business) => {
+                const businessId = business.created_at.toISOString(); // Convert Date to string
+                lastEmittedBusinessIds.add(businessId);  // Add the business's timestamp (as string) to the set
+              });
+
+              // Send the new businesses to the client
+              observer.next({ data: uniqueBusinesses });
+            }
+          }
+        } catch (error) {
+          observer.error(error);
+        }
+      }, 5000); // Send updates every 5 seconds, but only for new businesses
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    });
+  }
 }

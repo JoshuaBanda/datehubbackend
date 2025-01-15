@@ -209,3 +209,20 @@ export const confession_likes = pgTable('confession_likes', {
 
   export type selectReport=typeof reportTable.$inferSelect;
   export type insertReport=typeof reportTable.$inferInsert;
+
+
+
+  
+export const business = pgTable('business', {
+  business_id: serial('business').primaryKey(),
+  description: text('description').notNull(),
+  photo_url: text('photo_url').notNull(), // This will store the URL of the photo
+  photo_public_id: text('photo_public_id').notNull(), // New field to store the publicId of the photo
+  user_id: integer('user_id')
+    .notNull()
+    .references(() => usersTable.userid, { onDelete: 'cascade' }),
+  created_at: timestamp('createdat').defaultNow(),
+});
+
+export type selectBusiness=typeof business.$inferSelect;
+export type insertBusiness=typeof business.$inferInsert;
