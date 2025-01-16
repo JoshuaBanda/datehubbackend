@@ -4,6 +4,7 @@ import { usersTable } from 'src/db/schema';
 import { sql } from 'drizzle-orm';
 
 type SearchResult = {
+  userid:number;
   firstname: string;
   lastname: string;
   profilepicture: string;
@@ -21,6 +22,7 @@ export class SearchService {
       const result = await db
         .select(
           {
+            userid:usersTable.userid,
             firstname: usersTable.firstname,
             lastname: usersTable.lastname,
             profilepicture: usersTable.profilepicture,
