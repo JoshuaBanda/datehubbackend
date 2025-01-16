@@ -1,5 +1,5 @@
 {
-  "id": "191d29c6-c58e-46f3-9c20-27e696009dd9",
+  "id": "c7657ec5-ae09-4d0c-bb8e-8babf37c4c6c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -902,7 +902,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "title_search_index": {
+          "name": "title_search_index",
+          "columns": [
+            {
+              "expression": "to_tsvector('english', \"firstname\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {

@@ -244,3 +244,5 @@ DO $$ BEGIN
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "title_search_index" ON "users" USING gin (to_tsvector('english', "firstname"));

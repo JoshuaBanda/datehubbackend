@@ -1,7 +1,8 @@
 
 import { table } from 'console';
 import 'dotenv/config';
-import { pgTable, serial, text, integer, timestamp, primaryKey, boolean, date } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { pgTable, serial, text, integer, timestamp, primaryKey, boolean, date, index } from 'drizzle-orm/pg-core';
 
 // Define your tablesimport { pgTable, serial, text, boolean } from 'drizzle-orm/pg-core';
 
@@ -69,7 +70,14 @@ export const usersTable = pgTable('users', {
     email: text('email').unique(),
     password: text('password').notNull(),
     activationstatus: boolean('activationstatus').notNull(),
-  });
+    
+  },
+  
+  (table) => ({
+    titleSearchIndex: index('title_search_index')
+    .using('gin', sql`to_tsvector('english', ${table.firstname})`),
+  }),
+);
 
 export type insertUsers=typeof usersTable.$inferInsert;
 export type selectUsers=typeof usersTable.$inferSelect;
