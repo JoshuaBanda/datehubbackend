@@ -1,10 +1,11 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { selectPost, post, usersTable, insertPost, selectUsers } from 'src/db/schema';
+import { selectPost, post, usersTable, insertPost, selectUsers, inboxParticipantsTable } from 'src/db/schema';
 import { eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { db } from 'src/db';
 import { PostTracker } from './post-tracker';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class PostService {
@@ -13,13 +14,18 @@ export class PostService {
   private userCaches: Map<number, (selectPost & { username: string; lastname: string; profilepicture: string })[]> =
     new Map();
 
-  constructor() {
+  constructor(
+    
+  private readonly notificationService: NotificationService,
+  ) {
+    
     v2.config({
       cloud_name: 'dfahzd3ky',
       api_key: '377379954858251',
       api_secret: 'Cxu4QkxXCmd400-VWttlRZ_w9p8',
     });
     this.postTracker = new PostTracker();
+    
   }
  
 
@@ -187,7 +193,34 @@ export class PostService {
         .insert(post)
         .values(data)
         .returning(); // Returning the newly inserted post
-  
+
+        console.log(newPost);
+        //destructuring the post
+
+        const {
+          post_id,
+          description,
+          photo_url,
+          photo_public_id,
+          user_id,
+          created_at,
+        } = newPost;
+    
+        // Optionally log the destructured values to check
+        console.log('Destructured post:', {
+          post_id,
+          description,
+          photo_url,
+          photo_public_id,
+          user_id,
+          created_at,
+        });
+
+        const friendsToRecieveNotifications=await this.getFriends(user_id);
+        console.log('friendsToRecieveNotifications',friendsToRecieveNotifications);
+
+        await this.notificationService.createNotificationsForFriends(friendsToRecieveNotifications);
+
       return newPost; // Return the inserted post data
     } catch (error) {
       throw new InternalServerErrorException('Failed to create post', error);
@@ -356,5 +389,44 @@ export class PostService {
         throw new Error('Failed to fetch post after the specified timestamp');
       }
     }
+
+
+
+    async getFriends(id: number) {
+        try {
+          // Execute the query
+          const result = await db
+            .select({
+              friendId: sql`CASE 
+                              WHEN ${inboxParticipantsTable.firstuserid} = ${id} THEN ${inboxParticipantsTable.seconduserid}
+                              WHEN ${inboxParticipantsTable.seconduserid} = ${id} THEN ${inboxParticipantsTable.firstuserid}
+                            END`
+            })
+            .from(inboxParticipantsTable)
+            .where(
+              sql`(${inboxParticipantsTable.firstuserid} = ${id} OR ${inboxParticipantsTable.seconduserid} = ${id})`
+            )
+            .execute();
+      
+          // If no results are found, throw an error
+          if (result.length === 0) {
+            throw new NotFoundException(`No friends found for user with id: ${id}`);
+          }
+      
+          // Map over the result to extract the 'friendId'
+          const friends = result.map((item: { friendId: number | null }) => item.friendId);
+      
+          // Filter out null values
+          return friends.filter(friendId => friendId !== null);
+      
+        } catch (error) {
+          // Handle any errors
+          throw new InternalServerErrorException('Failed to retrieve friends');
+        }
+      }
+      
+
+
+  
 }
 

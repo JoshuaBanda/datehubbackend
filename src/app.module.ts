@@ -27,6 +27,7 @@ import { ConfessionLikesModule } from './confession-likes/confession-likes.modul
 import { ReportModule } from './report/report.module';
 import { BusinessModule } from './business/business.module';
 import { SearchModule } from './search/search.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [MessageModule, UsersModule, InboxModule, InboxparticipantsModule, StartconversationModule, EmailModule, OtpModule, UserAunthenticationModule, CloudinaryModule,
@@ -43,7 +44,8 @@ import { SearchModule } from './search/search.module';
     ConfessionLikesModule,
     ReportModule,
     BusinessModule,
-    SearchModule
+    SearchModule,
+    NotificationModule
   ],
   controllers: [AppController,StartConversaation],
   providers: [AppService,InboxparticipantsService,InboxService],

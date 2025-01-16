@@ -234,3 +234,16 @@ export const business = pgTable('business', {
 
 export type selectBusiness=typeof business.$inferSelect;
 export type insertBusiness=typeof business.$inferInsert;
+
+export const notification=pgTable('notificatios',{
+  id:serial('id').primaryKey(),
+  recipientId:integer('recipientId').notNull()
+    .references(()=>usersTable.userid,{onDelete:'cascade'}),
+  notification:text('notification').notNull(),
+  status:text('status').notNull(),//seen, recieved
+  created_at:timestamp('created_at').defaultNow(),
+
+  
+});
+export type selectNotification=typeof notification.$inferSelect;
+export type insertNotification=typeof notification.$inferInsert;
