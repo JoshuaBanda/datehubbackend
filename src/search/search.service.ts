@@ -21,11 +21,11 @@ export class SearchService {
       const result = await db
         .select(
           {
-            firstname:usersTable.firstname,
-            lastname:usersTable.lastname,
-            profilepicture:usersTable.profilepicture,
-            email:usersTable.email,
-            activationstatus:usersTable.activationstatus
+            firstname: usersTable.firstname,
+            lastname: usersTable.lastname,
+            profilepicture: usersTable.profilepicture,
+            email: usersTable.email,
+            activationstatus: usersTable.activationstatus,
           }
         )
         .from(usersTable)
