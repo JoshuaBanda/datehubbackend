@@ -250,19 +250,14 @@ getAllMessageEvents(
 
 
   @Sse('business-sse') // This will listen for SSE events on /business/events
-  getAllBusinessEvents(
-    @Query('inboxIds') inboxIds: string,  // Extract the inboxIds query parameter
-  ): Observable<any> {
+  async getAllBusinessEvents(): Promise<Observable<any>> {
     let lastTimestamp = new Date(0); // Start with the epoch time to get all businesses initially
     let lastEmittedBusinessIds: Set<string> = new Set(); // Track already emitted business IDs to avoid duplicates
-
-    // Convert inboxIds query string to a list of inbox IDs
-    const inboxIdList = inboxIds.split(',');
 
     return new Observable((observer) => {
       const intervalId = setInterval(async () => {
         try {
-          // Fetch only new businesses created after the last timestamp, and with the provided inbox IDs
+          // Fetch only new businesses created after the last timestamp
           const newBusinesses = await this.businessService.getBusinessAfter(lastTimestamp);
 
           // Only send new businesses if any were found
@@ -291,7 +286,7 @@ getAllMessageEvents(
         } catch (error) {
           observer.error(error);
         }
-      }, 60000); 
+      }, 60000); // Fetch new businesses every 60 seconds
 
       return () => {
         clearInterval(intervalId);
