@@ -291,7 +291,7 @@ getAllMessageEvents(
         } catch (error) {
           observer.error(error);
         }
-      }, 5000); // Send updates every 5 seconds, but only for new businesses
+      }, 60000); 
 
       return () => {
         clearInterval(intervalId);

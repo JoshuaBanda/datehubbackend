@@ -20,7 +20,7 @@ export class SearchService {
     const result=await db
     .select()
     .from(usersTable)
-    .where(sql`to_tsvector('english', ${usersTable.firstname}) @@ to_tsquery('english', ${firstname})`);
+    .where(sql`to_tsvector('english', ${usersTable.firstname})  @@ plainto_tsquery('english', ${firstname})`);
     
 
     console.log('result :',result);
