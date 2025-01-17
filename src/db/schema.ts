@@ -10,7 +10,7 @@ import { pgTable, serial, text, integer, timestamp, primaryKey, boolean, date, i
 
 export const inboxTable = pgTable('inbox', {
     inboxid: serial('inboxid').primaryKey(),
-    blocker: text('block').notNull(),
+    blocker: text('blocker').notNull(),
     block:boolean('block').notNull(),
 });
 

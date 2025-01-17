@@ -1,5 +1,5 @@
 {
-  "id": "0868dbb7-1b7c-44fd-873d-656142aaedad",
+  "id": "fd2775a2-5437-4b86-afe0-eae1d7614e04",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -395,6 +395,12 @@
           "name": "inboxid",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "blocker": {
+          "name": "blocker",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "block": {

@@ -21,4 +21,17 @@ export class InboxController {
     }
   }
   
+  @Put('unblock')
+  async unblock(
+    @Body() body:{inboxid,blocker}
+  ){
+    try{
+      const {inboxid,blocker}=body;
+      await this.inboxService.unblock(inboxid,blocker)
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+  
 }
