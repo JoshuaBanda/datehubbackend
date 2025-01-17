@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS "inboxparticipants" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "inbox" (
 	"inboxid" serial PRIMARY KEY NOT NULL,
-	"lastmessage" text
+	"block" boolean NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "likes" (

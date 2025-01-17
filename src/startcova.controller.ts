@@ -22,10 +22,17 @@ export class StartConversaation{
 
         try{
 
-            const result= await this.inboxService.createEntry(firstuserid);
+           const data= {
+                firstuserid,
+                block:false,
+                blocker:'empty',
+
+            }
+
+            const result= await this.inboxService.createEntry(data);
 
             //destructure the result
-            const {inboxid:inboxid, lastmessage:last_message}=result;
+            const {inboxid:inboxid, block,blocker}=result;
 
             const inboxParticipant={
                 firstuserid,

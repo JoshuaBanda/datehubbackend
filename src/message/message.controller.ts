@@ -48,7 +48,7 @@ export class MessageController {
     return 'message status updated to receive';
   }
   
-  @Put('updatemessagetext')
+  @Put('updatemessageitem')
   async updateMessageText(
     @Body() body: { id: number, message: string }  // Expecting the 'id' and 'status' in the body
   ) {

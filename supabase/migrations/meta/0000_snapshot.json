@@ -1,5 +1,5 @@
 {
-  "id": "c0ede12f-7f9e-4506-8fef-a64f8398f38a",
+  "id": "0868dbb7-1b7c-44fd-873d-656142aaedad",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -397,11 +397,11 @@
           "primaryKey": true,
           "notNull": true
         },
-        "lastmessage": {
-          "name": "lastmessage",
-          "type": "text",
+        "block": {
+          "name": "block",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
