@@ -20,9 +20,9 @@ export class PostService {
   ) {
     
     v2.config({
-      cloud_name: 'dfahzd3ky',
-      api_key: '377379954858251',
-      api_secret: 'Cxu4QkxXCmd400-VWttlRZ_w9p8',
+      cloud_name: 'djhmilu3h',
+      api_key: '719851176349863',
+      api_secret: 'Xo1sUcugo5D8Pz-z9WOO1muFfZk',
     });
     this.postTracker = new PostTracker();
     
