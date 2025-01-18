@@ -20,7 +20,7 @@ export class CloudinaryService {
         {
           resource_type: 'auto',
           public_id: fileName, // Use fileName as public_id if desired
-          folder: 'farmsmart' // Optionally specify a folder
+          folder: 'unimadatinghub' // Optionally specify a folder
         },
         (error, result) => {
           if (error) {

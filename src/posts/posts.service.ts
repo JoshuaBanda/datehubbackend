@@ -164,7 +164,7 @@ export class PostService {
         {
           resource_type: 'auto',  // Automatically detect file type
           public_id: fileName,    // Use fileName as public_id
-          folder: 'farmsmart',    // Optionally specify a folder
+          folder: 'unimadatinghub',    // Optionally specify a folder
           transformation: [
             { width: 800, height: 600, crop: 'limit' },  // Resize to fit within 800x600
             { quality: quality },  // Specify custom quality (e.g., 80)
