@@ -45,7 +45,7 @@ export class UsersController {
     @Req() req,
     @Query('page') page: number = 1,  // Default to page 1 if not provided
     @Query('pageSize') pageSize: number = 10, // Default to 10 items per page
-    @Query('minSimilarityScore') minSimilarityScore: number = 1, // Minimum similarity score
+    @Query('minSimilarityScore') minSimilarityScore: number = 2, // Minimum similarity score
   ): Promise<any[]> {
     const userId = req.user?.sub; // Access userId (stored in 'sub' in the token)
     
@@ -109,14 +109,14 @@ export class UsersController {
   // Endpoint to authenticate a user (Login)
   @Post('logi-n')
   async login(@Body() LoginDto: { email: string; password: string }) {
-    console.log('Login attempt for:', LoginDto.email);
+    //console.log('Login attempt for:', LoginDto.email);
     const { email, password } = LoginDto;
 
     // Authenticate user and return JWT token
     const result = await this.usersService.getAuthenticatedUser(email, password);
 
     const user=await this.usersService.getUserByEmail(email);
-    console.log(user);
+   // console.log(user);
     if (!user.activationstatus){
       throw new BadRequestException('Account not activated, change your password to activate account')
     }

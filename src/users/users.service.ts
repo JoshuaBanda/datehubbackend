@@ -65,16 +65,16 @@ private userPreferencesCache = new Map<number, select_preferences>();
 // Get preference by user_id
 async getPreference(userId: number): Promise<select_preferences | null> {
   try {
-    console.log(`Fetching preferences for user ${userId}`);
+   // console.log(`Fetching preferences for user ${userId}`);
 
     // First, check the cache
     if (this.userPreferencesCache.has(userId)) {
-      console.log(`Returning cached preference for user ${userId}`);
+   //   console.log(`Returning cached preference for user ${userId}`);
       return this.userPreferencesCache.get(userId) || null;
     }
 
     // Fetch preference from the database if not in cache
-    console.log(`Preferences not found in cache, fetching from database for user ${userId}`);
+   // console.log(`Preferences not found in cache, fetching from database for user ${userId}`);
     const [preference] = await db
       .select()
       .from(preferences)
@@ -82,11 +82,11 @@ async getPreference(userId: number): Promise<select_preferences | null> {
       .execute();
 
     if (preference) {
-      console.log(`Fetched preference for user ${userId} from database`);
+    //  console.log(`Fetched preference for user ${userId} from database`);
       // Cache the fetched preference
       this.userPreferencesCache.set(userId, preference);
     } else {
-      console.log(`No preference found in database for user ${userId}`);
+     // console.log(`No preference found in database for user ${userId}`);
     }
 
     return preference || null;
@@ -166,7 +166,7 @@ async getPreferredUsers(
       };
 
       if(userPreferences.preferred_sex==characteristics.preferred_sex){
-        console.log('sex ',userPreferences.preferred_sex,'sex',characteristics.preferred_sex);
+     //   console.log('sex ',userPreferences.preferred_sex,'sex',characteristics.preferred_sex);
         const { similarityScore, matchedCriteria } = this.calculatePreferenceSimilarity(userPreferences, characteristics);
 
         // Include the calculated age in the matched criteria
@@ -218,51 +218,51 @@ calculatePreferenceSimilarity(preference1: any, preference2: any): { similarityS
   let score = 0;
   const matchedCriteria: string[] = [];
 
-  console.log('Calculating similarity score between preferences');
+ // console.log('Calculating similarity score between preferences');
   
   // Compare preferences one by one, increase score for each match
   if (preference1.preferred_age === preference2.preferred_age) {
     score++;
     matchedCriteria.push('Similar age');
-    console.log('Matched preferred age');
+  //  console.log('Matched preferred age');
   }
   if (preference1.preferred_sex === preference2.preferred_sex) {
     score++;
     matchedCriteria.push('Similar sex');
-    console.log('Matched preferred sex');
+   // console.log('Matched preferred sex');
   }
   if (preference1.preferred_height === preference2.preferred_height) {
     score++;
     matchedCriteria.push('Similar height');
-    console.log('Matched preferred height');
+   // console.log('Matched preferred height');
   }
   if (preference1.preferred_skin_color === preference2.preferred_skin_color) {
     score++;
     matchedCriteria.push('Similar skin color');
-    console.log('Matched preferred skin color');
+  //  console.log('Matched preferred skin color');
   }
   if (preference1.preferred_hobby === preference2.preferred_hobby) {
     score++;
     matchedCriteria.push('Similar hobby');
-    console.log('Matched preferred hobby');
+   // console.log('Matched preferred hobby');
   }
   if (preference1.preferred_location === preference2.preferred_location) {
     score++;
     matchedCriteria.push('Similar location');
-    console.log('Matched preferred location');
+ //   console.log('Matched preferred location');
   }
   if (preference1.preferred_program_of_study === preference2.preferred_program_of_study) {
     score++;
     matchedCriteria.push('Similar program of study');
-    console.log('Matched preferred program of study');
+ //   console.log('Matched preferred program of study');
   }
   if (preference1.preferred_year_of_study === preference2.preferred_year_of_study) {
     score++;
     matchedCriteria.push('Similar year of study');
-    console.log('Matched preferred year of study');
+  //  console.log('Matched preferred year of study');
   }
 
-  console.log(`Total similarity score: ${score}`);
+ // console.log(`Total similarity score: ${score}`);
   return { similarityScore: score, matchedCriteria };
 }
 
@@ -330,7 +330,7 @@ calculatePreferenceSimilarity(preference1: any, preference2: any): { similarityS
     password: string
   ): Promise<{ access_token: string }> {
     try {
-      console.log('Starting authentication process');
+   //   console.log('Starting authentication process');
   
       const user = await db
         .select()
@@ -338,25 +338,25 @@ calculatePreferenceSimilarity(preference1: any, preference2: any): { similarityS
         .where(eq(usersTable.email, email))
         .execute();
   
-      console.log('Database query completed:', user);
+    //  console.log('Database query completed:', user);
   
       if (user.length === 0) {
-        console.log('User not found');
+    //    console.log('User not found');
         throw new InternalServerErrorException('Invalid credentials');
       }
   
       const isPasswordValid = await bcrypt.compare(password, user[0].password);
-      console.log('Password comparison result:', isPasswordValid);
+     // console.log('Password comparison result:', isPasswordValid);
   
       if (!isPasswordValid) {
         throw new InternalServerErrorException('Invalid credentials');
       }
   
       const result = { sub: user[0].userid, firstname: user[0].firstname };
-      console.log('JWT payload:', result);
+    //  console.log('JWT payload:', result);
   
       const token = await this.jwtService.signAsync(result);
-      console.log('JWT token generated:', token);
+    //  console.log('JWT token generated:', token);
   
       return { access_token: token };
   
@@ -404,7 +404,7 @@ async updateFirstName(email: string, firstname: string) {
     if (!email || !firstname) {
       throw new Error('Invalid input data');
     }
-    console.log('chec',email,firstname);
+   // console.log('chec',email,firstname);
 
     // Perform the update operation
     const result = await db
@@ -434,7 +434,7 @@ async updateLastName(email: string, lastname: string) {
     if (!email || !lastname) {
       throw new Error('Invalid input data');
     }
-    console.log('chec',email,lastname);
+   // console.log('chec',email,lastname);
 
     // Perform the update operation
     const result = await db
@@ -464,7 +464,7 @@ async updateProfilePicture(email: string, profilepicture: string) {
     if (!email || !profilepicture) {
       throw new Error('Invalid input data');
     }
-    console.log('chec',email,profilepicture);
+   // console.log('chec',email,profilepicture);
 
     // Perform the update operation
     const result = await db

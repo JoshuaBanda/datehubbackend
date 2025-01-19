@@ -29,7 +29,7 @@ export class ActivationService{
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
   
-      console.log(`User with ID ${userId} activation status updated to ${activationStatus}`);
+     // console.log(`User with ID ${userId} activation status updated to ${activationStatus}`);
     } catch (error) {
       // Log the error more comprehensively for debugging
       console.error('Error updating activation status:', error);
@@ -57,7 +57,7 @@ export class ActivationService{
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
   
-      console.log(`User with ID ${userId} activation status updated to ${activationStatus}`);
+    //  console.log(`User with ID ${userId} activation status updated to ${activationStatus}`);
     } catch (error) {
       // Log the error more comprehensively for debugging
       console.error('Error updating activation status:', error);

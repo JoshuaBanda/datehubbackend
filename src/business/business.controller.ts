@@ -85,7 +85,7 @@ export class BusinessController {
     @Body() updateBusinessDto: UpdateBusinessDto
   ) {
     try {
-      console.log(updateBusinessDto);
+     // console.log(updateBusinessDto);
       await this.businessService.updateBusinessDescription(updateBusinessDto.business_id, updateBusinessDto.description);
       return { message: 'Business description updated successfully' };
     } catch (error) {
@@ -96,7 +96,7 @@ export class BusinessController {
   @Delete('deleteItem')
   async deleteBusiness(@Body('businessId') businessId: number) {
     try {
-      console.log(businessId);  
+     // console.log(businessId);  
       // Fetch the business from the database by businessId to get the associated photo public_id
       const business = await this.businessService.getBusinessById(businessId);
       if (!business) {

@@ -54,7 +54,7 @@ async createNotificationsForFriends(friendsToRecieveNotifications: number[]) {
   const notificationMessage = "You have a new notification";  // Notification message
   const status = "sent";  // Status for the notification
 
-  console.log('createNotificationsForFriends to :',friendsToRecieveNotifications);
+ // console.log('createNotificationsForFriends to :',friendsToRecieveNotifications);
 
   try {
     // Loop through the list of user IDs and create a notification for each
@@ -71,7 +71,7 @@ async createNotificationsForFriends(friendsToRecieveNotifications: number[]) {
       })
     );
 
-    console.log('Notifications created:', notifications);
+  //  console.log('Notifications created:', notifications);
   } catch (error) {
     console.error('Error creating notifications:', error);
   }

@@ -66,13 +66,13 @@ export class EmailService {
     // Function to introduce a delay,social
     //skippin early child hood dev,gender
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    const departments = [ /*'bsc-inf','bsc-bio', 'bed-com', 'bsc-com'*/'bah-mfd','ba-eco','bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh',];
-    let yearSuffix = 21; // Start with year '22'
-    const maxAttempts = 50;//max attempt to retry sending email
+    const departments = [ 'bsc-inf','bsc-bio', 'bed-com', 'bsc-com','bah-mfd','ba-eco','bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh','bsoc-sw','ba-com','bsoc-le','bsoc','bed-mat','bed-phy','bed-bio','bed-hec','bed-che',];
+    let yearSuffix = 22; // Start with year '22'
+    const maxAttempts = 80;//max attempt to retry sending email
     const retryLimit = 4;//maxmum retry before moving to the next unit
     const timeoutLimit = 20000; // Increased timeout limit (20 seconds)
-    const maxRegNumber =30 ;//max reg numbers for a cohort
-    const emailDelay = 1000;  // Delay between emails (1 second)
+    const maxRegNumber =80 ;//max reg numbers for a cohort
+    const emailDelay = 2000;  // Delay between emails (1 second)
   
     let consecutiveFailures = 0;
   
@@ -80,7 +80,7 @@ export class EmailService {
       const department = departments[departmentIndex];
   
       for (let year = yearSuffix; year <= 24; year++) {
-        let regNumber = 1;
+        let regNumber = 4;
         console.log(`Processing department: ${department}, Year: ${year}`);
   
         for (let i = 0; i < maxAttempts; i++) {
@@ -92,7 +92,7 @@ export class EmailService {
           const mailOptions = {
             from: process.env.SMTP_USER,
             to: email,
-            subject: 'Greetings',
+            subject: 'Unima Dating Hub',
             text: message.message,
           };
   

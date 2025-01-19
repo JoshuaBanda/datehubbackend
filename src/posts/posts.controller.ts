@@ -162,21 +162,20 @@ export class PostController {
   getAllPostsEvents(): Observable<any> {
     let lastTimestamp = new Date(0); // Start with the epoch time to get all posts initially
     let lastEmittedPostsIds: Set<string> = new Set(); // Track already emitted post IDs to avoid duplicates
-  console.log("kkk");
     return new Observable((observer) => {
       const intervalId = setInterval(async () => {
         try {
-          console.log('Checking for new posts after timestamp:', lastTimestamp); // Log the timestamp being used
+         // console.log('Checking for new posts after timestamp:', lastTimestamp); // Log the timestamp being used
   
           // Fetch only new posts created after the last timestamp
           const newPosts = await this.postService.getPostAfter(lastTimestamp);
   
           // Log the result from getPostAfter
-          console.log('Fetched new posts:', newPosts);
+          //console.log('Fetched new posts:', newPosts);
   
           // Only send new posts if any were found
           if (newPosts && newPosts.length > 0) {
-            console.log(`Found ${newPosts.length} new post(s)`); // Log the number of new posts
+          //  console.log(`Found ${newPosts.length} new post(s)`); // Log the number of new posts
   
             // Filter out posts that have already been emitted using a unique identifier (e.g., post ID or timestamp)
             const uniquePosts = newPosts.filter((post) => {
@@ -186,12 +185,12 @@ export class PostController {
   
             if (uniquePosts.length > 0) {
               // Log unique posts that will be sent to the client
-              console.log('Unique posts to emit:', uniquePosts);
+           //   console.log('Unique posts to emit:', uniquePosts);
   
               // Update the last timestamp to the most recent post's createdAt
               const latestTimestamp = newPosts[newPosts.length - 1].created_at;
               lastTimestamp = new Date(latestTimestamp);  // Update the lastTimestamp to the most recent
-              console.log('Updated lastTimestamp:', lastTimestamp);
+             // console.log('Updated lastTimestamp:', lastTimestamp);
   
               // Emit new posts and track their post IDs to avoid re-emission
               uniquePosts.forEach((post) => {
@@ -200,13 +199,13 @@ export class PostController {
               });
   
               // Send the new posts to the client
-              console.log('Emitting posts:', uniquePosts);
+           //   console.log('Emitting posts:', uniquePosts);
               observer.next({ data: uniquePosts });
             } else {
-              console.log('No unique posts found to emit.');
+          //    console.log('No unique posts found to emit.');
             }
           } else {
-            console.log('No new posts found after the last timestamp.');
+          //  console.log('No new posts found after the last timestamp.');
           }
         } catch (error) {
           console.error('Error fetching new posts:', error); // Log any error that occurs
@@ -215,7 +214,7 @@ export class PostController {
       }, 5000); // Send updates every 5 seconds, but only for new posts
   
       return () => {
-        console.log('Cleaning up the interval and closing the observable.');
+       // console.log('Cleaning up the interval and closing the observable.');
         clearInterval(intervalId);
       };
     });

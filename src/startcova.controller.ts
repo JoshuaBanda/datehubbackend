@@ -15,9 +15,9 @@ export class StartConversaation{
     async startCoversation(
         @Body() userData:CreateUserDto
     ){
-        console.log('firstly',userData);
+       // console.log('firstly',userData);
         const { firstuserid, seconduserid } = userData;
-        console.log('kkkkkkkkkkkkkkkk,',userData);
+       // console.log('kkkkkkkkkkkkkkkk,',userData);
         
 
         try{

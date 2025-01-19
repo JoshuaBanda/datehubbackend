@@ -254,7 +254,7 @@ export class BusinessService {
   // Get businesses created after the given timestamp
   async getBusinessAfter(lastTimestamp: Date): Promise<selectBusiness[]> {
     try {
-      console.log('Fetching businesses after timestamp:', lastTimestamp); // Log the input timestamp
+   //   console.log('Fetching businesses after timestamp:', lastTimestamp); // Log the input timestamp
   
       // Query the database for businesses that have a 'createdAt' timestamp greater than the lastTimestamp
       const result = await db
@@ -265,11 +265,11 @@ export class BusinessService {
         .execute();
   
       if (result.length === 0) {
-        console.log('No businesses found after timestamp:', lastTimestamp); // Log when no data is found
+     //   console.log('No businesses found after timestamp:', lastTimestamp); // Log when no data is found
       }
   
       // Log the query result before returning
-      console.log('Fetched businesses:', result); // Log the result from the database query
+     // console.log('Fetched businesses:', result); // Log the result from the database query
   
       return result;  // Return the result
     } catch (error) {
@@ -311,7 +311,7 @@ export class BusinessService {
   
   async updateBusinessDescription(businessId: selectBusiness['business_id'], newDescription: string): Promise<void> {
     try {
-      console.log(businessId,newDescription);
+     // console.log(businessId,newDescription);
       const result = await db
         .update(business)
         .set({ description: newDescription })
@@ -320,7 +320,7 @@ export class BusinessService {
       if (result.count === 0) {
         throw new NotFoundException(`business with ID ${businessId} not found`);
       }
-      console.log('hey');
+    //  console.log('hey');
       return;
     } catch (error) {
       throw new InternalServerErrorException('Failed to update business description');
