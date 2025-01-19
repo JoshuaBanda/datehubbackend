@@ -11,8 +11,8 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail', // Example with Gmail (change according to your provider)
       auth: {
-        user: 'bsc-inf-04-22@unima.ac.mw', // Your email address
-        pass: 'cdgp uxya wlqy uift', // Your email password or app password
+        user: 'unimadatingapp@gmail.com', // Your email address
+        pass: 'vrgd dblu urhq ewtx', // Your email password or app password
       },
     });
   }
@@ -66,7 +66,7 @@ export class EmailService {
     // Function to introduce a delay,social
     //skippin early child hood dev,gender
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    const departments = [ 'bsc-inf','bsc-bio', 'bed-com', 'bsc-com','bah-mfd','ba-eco','bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh','bsoc-sw','ba-com','bsoc-le','bsoc','bed-mat','bed-phy','bed-bio','bed-hec','bed-che',];
+    const departments = [ 'bsc-inf'/*,'bsc-bio', 'bed-com', 'bsc-com','bah-mfd','ba-eco'*/,'bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh','bsoc-sw','ba-com','bsoc-le','bsoc','bed-mat','bed-phy','bed-bio','bed-hec','bed-che','ess','el'];
     let yearSuffix = 22; // Start with year '22'
     const maxAttempts = 80;//max attempt to retry sending email
     const retryLimit = 4;//maxmum retry before moving to the next unit
