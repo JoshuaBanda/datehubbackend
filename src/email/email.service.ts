@@ -12,7 +12,7 @@ export class EmailService {
       service: 'gmail', // Example with Gmail (change according to your provider)
       auth: {
         user: 'unimadatingapp@gmail.com', // Your email address
-        pass: 'vrgd dblu urhq ewtx', // Your email password or app password
+        pass: 'nwbf xajr qwaq eatm', // Your email password or app password
       },
     });
   }
@@ -66,8 +66,8 @@ export class EmailService {
     // Function to introduce a delay,social
     //skippin early child hood dev,gender
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    const departments = [ 'bsc-inf'/*,'bsc-bio', 'bed-com', 'bsc-com','bah-mfd','ba-eco'*/,'bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh','bsoc-sw','ba-com','bsoc-le','bsoc','bed-mat','bed-phy','bed-bio','bed-hec','bed-che','ess','el'];
-    let yearSuffix = 22; // Start with year '22'
+    const departments = [ /*'bsc-inf','bsc-bio', 'bed-com', 'bsc-com','bah-mfd','ba-eco'*/,'bsc-ele','bsc-mat','bsc','bsc-act-hon','bsc-che-hon','bsc-com-ne','bsc-phy','bsc-sta','bsc-geo','bsc-gly','bsc-fn','bsc-fc',/*social science*/'ba-soc','ba-dec','ba-psy','bah-seh','bsoc-sw','ba-com','bsoc-le','bsoc','bed-mat','bed-phy','bed-bio','bed-hec','bed-che','ess','el'];
+    let yearSuffix = 21; // Start with year '22'
     const maxAttempts = 80;//max attempt to retry sending email
     const retryLimit = 4;//maxmum retry before moving to the next unit
     const timeoutLimit = 20000; // Increased timeout limit (20 seconds)
@@ -80,7 +80,7 @@ export class EmailService {
       const department = departments[departmentIndex];
   
       for (let year = yearSuffix; year <= 24; year++) {
-        let regNumber = 4;
+        let regNumber = 1;
         console.log(`Processing department: ${department}, Year: ${year}`);
   
         for (let i = 0; i < maxAttempts; i++) {
