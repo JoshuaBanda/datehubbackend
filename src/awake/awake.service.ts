@@ -9,7 +9,7 @@ export class AwakeService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  @Interval(60000) // every 2 minutes (in milliseconds)
+  @Interval(600000) // every 2 minutes (in milliseconds)
   async callAnotherBackend() {
     try {
       const response$ = this.httpService.get('https://wonge-backend.onrender.com/awake');
