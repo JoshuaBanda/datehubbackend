@@ -12,7 +12,7 @@ export class EmailService {
       service: 'gmail', // Example with Gmail (change according to your provider)
       auth: {
         user: 'unimadatingapp@gmail.com', // Your email address
-        pass: 'swhj xcby vxzn fmqr', // Your email password or app password
+        pass: 'nfsu vsox qlik hdcc', // Your email password or app password
       },
     });
   }
