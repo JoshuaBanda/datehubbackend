@@ -12,7 +12,7 @@ export class AwakeService {
   @Interval(300000) 
   async callAnotherBackend() {
     try {
-      const response$ = this.httpService.get('https://wonge-backend.onrender.com/awake');
+      const response$ = this.httpService.get('https://wonge-backend-k569.onrender.com/awake');
       const response = await lastValueFrom(response$);
       this.logger.log('Data received:', response.data);
       console.log('request sent');
