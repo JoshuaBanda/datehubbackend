@@ -24,7 +24,10 @@ export class PostController {
       throw new Error('User ID is required to fetch posts');
     }
 
-    const posts = await this.postService.getPosts(userId);
+    let posts =await this.postService.getPosts(userId);
+     if (!posts){
+      posts=await this.postService.getPosts(userId);
+     }
     if (!posts) {
       return []; // Return empty array if no posts are found
     }
